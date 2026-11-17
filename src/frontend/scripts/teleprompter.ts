@@ -52,6 +52,7 @@ import {
   layoutCommands,
 } from "./controlCommands.ts";
 import { PaletteControls } from "./paletteControls.ts";
+import type { Command } from "./commands.ts";
 import { SettingsControls } from "./settingsControls.ts";
 import { GamepadControls } from "./gamepadControls.ts";
 import { connectController, type ControllerLink } from "./webrtc.ts";
@@ -581,6 +582,9 @@ export class Teleprompter {
       providers: [
         () => documentCommands(this.docControls),
         () => layoutCommands(this.themeControls),
+        // One row per heading. Built on every open rather than cached, like the
+        // two above: the script changes under it.
+        () => this.#headingCommands(),
       ],
       // A pool of its own rather than a provider: providers feed the command
       // list, and a colour has no business appearing there — it would put
@@ -2494,6 +2498,76 @@ export class Teleprompter {
    * swallows the resulting event — and then carries on from the new position,
    * so this works while the scroll is running.
    */
+  /**
+   * One palette row per heading in the script.
+   *
+   * A service script runs to hundreds of paragraphs, and until now the only
+   * ways to a particular part of it were to scrub the preview — which lands you
+   * near it — or to scroll the editor and press "send my position". A heading
+   * is where an operator's own map of a service breaks, so it is the unit worth
+   * offering.
+   *
+   * The headings and their block indices come from the preview, not from the
+   * editor: the preview is laid out in the reference display's box, so its Nth
+   * block is every display's Nth block and the index needs no conversion at
+   * all. The same argument #previewBlockMetrics makes for positions.
+   *
+   * Capped at forty, because a document with a heading over every paragraph
+   * would push every other command off the top of the list.
+   */
+  #headingCommands(): Command[] {
+    const main = this.#previewScroller()?.querySelector("#main");
+    if (!main) return [];
+    const blocks = [...main.children] as HTMLElement[];
+    const commands: Command[] = [];
+    for (let index = 0; index < blocks.length; index++) {
+      const el = blocks[index];
+      if (!/^H[1-6]$/.test(el.tagName)) continue;
+      const text = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+      if (!text) continue;
+      commands.push({
+        id: `jump.heading.${index}`,
+        // Truncated rather than wrapped: a palette row is one line, and a
+        // heading out of a script runs to whatever length the author wanted.
+        label: text.length > 44 ? `${text.slice(0, 44)}…` : text,
+        group: "滚动",
+        hint: `第 ${index + 1} 块`,
+        keywords: ["跳转", "段落", "标题", "goto", "section"],
+        run: () => this.jumpToBlock(index),
+      });
+      if (commands.length >= 40) break;
+    }
+    return commands;
+  }
+
+  /**
+   * Put every display on the top of a block.
+   *
+   * The path "send my position" takes, with the block named by the caller
+   * rather than read from this pane's scroll offset — so `#lastRatio` is
+   * written here too, and a display that joins afterwards is caught up to the
+   * same line instead of to wherever this was before.
+   */
+  jumpToBlock(index: number) {
+    const previewScroller = this.#previewScroller();
+    const preview = this.#previewBlockMetrics();
+    if (!previewScroller || !preview.offsets.length) return;
+    // Minus the sticky clock strip, which covers the script rather than
+    // scrolling with it: without this the chosen heading lands under the strip.
+    const top = scrollTopOfBlock(preview.offsets, preview.heights, {
+      index,
+      fraction: 0,
+    }) - this.#previewFold();
+    const max = Math.max(
+      0,
+      previewScroller.scrollHeight - previewScroller.clientHeight,
+    );
+    const ratio = max ? Math.min(1, Math.max(0, top / max)) : 0;
+    this.#lastRatio = ratio;
+    this.link.sendScroll(ratio);
+    this.#postToPreview({ type: "scroll", r: ratio, s: 0 });
+  }
+
   sendMyPosition() {
     // Translated through the preview rather than sent as this pane's own
     // fraction. See goToViewerPosition for why a fraction cannot cross between

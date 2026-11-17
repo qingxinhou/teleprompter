@@ -27,7 +27,6 @@ stands so the reasoning does not have to be reconstructed.
 - [ ] User accounts
 - [ ] Export/import documents
 - [ ] Gamepad remapping and deadzone tuning, if a second pad shape needs it
-- [ ] Jump to a heading or paragraph, rather than scrubbing to it
 - [ ] A page-at-a-time mode, for a talk with slides rather than a service
 - [ ] Exact scroll sync across displays of genuinely different shapes, so each
       can use its whole screen rather than matching the primary — see below
@@ -110,6 +109,7 @@ worth marking closed.
 - [x] A display that has lost its link marked, so a frozen screen is not
       indistinguishable from a working one
 - [x] The end-of-document guard no longer parking a display short of its end
+- [x] Jumping to a heading from the command palette, rather than scrubbing to it
 - [x] Multiple layouts (Clocks & Text, Big Clocks)
 - [x] Layout selection interface
 - [x] Prompter themes/layouts, authored in CSS

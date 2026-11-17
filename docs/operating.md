@@ -286,6 +286,20 @@ It is off by default and marked in amber while armed, on the preview itself and
 in the app bar, because the preview sits under your pointer: armed, a wheel that
 drifts over it while you were reaching for a slider jogs every display.
 
+### Jumping to a heading
+
+**Ctrl+K** lists every heading in the script above the commands, one row each,
+findable by the heading's own words. Choosing one puts every display on that
+heading — the same result as **Send my position**, with the position chosen from
+a list instead of from wherever this pane happens to be scrolled.
+
+The list is capped at forty headings. Beyond that a script is better navigated
+with headings that say something than with a list that does not fit the dialog.
+
+A script with no headings has no rows here, which is the honest answer: there is
+nothing to jump between. Add `#` at the start of a line in the editor to make
+one.
+
 ## What a display looks like
 
 A line of script stops at about thirty Chinese characters (sixty Latin ones) and
