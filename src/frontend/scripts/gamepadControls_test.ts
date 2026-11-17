@@ -43,7 +43,7 @@ function fakeCommands(ran: string[]): Command[] {
   ].map(({ id, repeatable }) => ({
     id,
     label: id,
-    group: "Scroll" as const,
+    group: "滚动" as const,
     repeatable,
     run: () => {
       ran.push(id);

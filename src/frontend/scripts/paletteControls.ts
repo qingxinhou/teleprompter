@@ -177,10 +177,10 @@ export class PaletteControls {
     this.#input.value = "";
     this.#input.hidden = mode === "shortcuts";
     this.#dlg.label = mode === "shortcuts"
-      ? "Keyboard Shortcuts"
+      ? "键盘快捷键"
       : mode === "colours"
-      ? "Text Colour"
-      : "Commands";
+      ? "文字颜色"
+      : "命令";
     this.#selected = 0;
     this.#renderList();
     this.#dlg.open = true;
@@ -342,7 +342,7 @@ export class PaletteControls {
 
     if (this.#shown.length === 0) {
       this.#list.innerHTML =
-        `<div class="palette-empty">No matching command</div>`;
+        `<div class="palette-empty">没有匹配的命令</div>`;
       return;
     }
 

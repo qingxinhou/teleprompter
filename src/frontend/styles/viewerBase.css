@@ -209,3 +209,69 @@ html.can-drive #stage::-webkit-scrollbar {
    it is worse than the browser chrome it was there to remove. viewer.ts sizes
    the window to the screen instead, which script may do without an
    activation, and a click still takes it to true fullscreen. */
+
+/* The switch back to the operator's end.
+
+   A display is a thing left running, usually on a screen the talent is looking
+   at, so this cannot simply sit there: it would be in the shot. It fades in on
+   any pointer activity and fades out three seconds after the last one — long
+   enough to be tapped after the tap that woke it, short enough to be gone
+   before anyone frames a picture.
+
+   Its own surface rather than the theme's, deliberately. A theme is free to
+   make the background white and the script black; a chip that took those two
+   colours would then vanish into the page it sits on. Fixed dark-on-light like
+   the browser's own overlay controls, at the bottom corner away from the
+   clocks at the top and from the middle of the screen the talent reads. */
+.end-switch {
+  position: fixed;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.4375rem 0.8125rem;
+  border: 1px solid rgb(255 255 255 / 0.22);
+  border-radius: 999px;
+  background-color: rgb(0 0 0 / 0.55);
+  color: rgb(255 255 255 / 0.88);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 0.8125rem;
+  line-height: 1;
+  text-decoration: none;
+  /* Not clickable while invisible: without this the corner of every display
+     would be a live target the audience cannot see. */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease-out;
+}
+
+.end-switch[data-awake] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* [hidden] is in the UA stylesheet, and the display above overrides it — so
+   the attribute needs restating here for the preview iframe, which must never
+   show this at all. */
+.end-switch[hidden] {
+  display: none;
+}
+
+.end-switch svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex: none;
+}
+
+.end-switch:focus-visible {
+  outline: 2px solid rgb(255 255 255 / 0.7);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .end-switch {
+    transition: none;
+  }
+}

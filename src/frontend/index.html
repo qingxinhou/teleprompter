@@ -3,13 +3,13 @@
      panes is on screen at a time and this says which. Defaults to the controls,
      because a phone is a thing you reach for to run the show, not to write the
      script. Ignored entirely above that width. -->
-<html lang="en" class="wa-theme-shoelace wa-palette-shoelace wa-brand-blue wa-dark" data-pane="controls">
+<html lang="zh-CN" class="wa-theme-shoelace wa-palette-shoelace wa-brand-blue wa-dark" data-pane="controls">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/icons/tv-solid-full.svg" type="image/svg+xml">
-  <title>Teleprompter</title>
+  <title>提词器</title>
   <script type="module" defer src="/scripts/app.ts"></script>
 </head>
 
@@ -23,19 +23,19 @@
     <div class="bar-group" id="grpDocument">
       <span id="spnBrand">
         <wa-icon name="tv"></wa-icon>
-        Teleprompter
+        提词器
       </span>
       <!-- Script-level actions, grouped because they are one subject: the
            document being prompted. -->
-      <wa-button-group label="Document">
-        <wa-button id="btnNew" size="s" appearance="outlined" title="New document">
+      <wa-button-group label="稿件">
+        <wa-button id="btnNew" size="s" appearance="outlined" title="新建稿件">
           <wa-icon slot="start" name="file-circle-plus"></wa-icon>
-          <span class="btn-label">New</span>
+          <span class="btn-label">新建</span>
         </wa-button>
         <wa-dropdown id="drpDocuments">
-          <wa-button slot="trigger" size="s" appearance="outlined" with-caret title="Documents">
+          <wa-button slot="trigger" size="s" appearance="outlined" with-caret title="稿件列表">
             <wa-icon slot="start" name="file"></wa-icon>
-            <span class="btn-label">Documents</span>
+            <span class="btn-label">稿件</span>
           </wa-button>
         </wa-dropdown>
       </wa-button-group>
@@ -43,49 +43,49 @@
     <!-- Mobile only: which pane is on screen. A tab-like pair rather than one
          toggling button, so the operator can see both destinations and which
          one they are on without reading a label that changes meaning. -->
-    <wa-button-group id="grpPane" class="mobile-only" label="Pane">
-      <wa-button id="btnPaneScript" size="s" appearance="outlined" title="Script">
+    <wa-button-group id="grpPane" class="mobile-only" label="面板">
+      <wa-button id="btnPaneScript" size="s" appearance="outlined" title="稿件编辑区">
         <wa-icon slot="start" name="file-lines"></wa-icon>
-        <span class="btn-label">Script</span>
+        <span class="btn-label">编辑</span>
       </wa-button>
-      <wa-button id="btnPaneControls" size="s" appearance="outlined" title="Controls">
+      <wa-button id="btnPaneControls" size="s" appearance="outlined" title="控制面板">
         <wa-icon slot="start" name="sliders"></wa-icon>
-        <span class="btn-label">Controls</span>
+        <span class="btn-label">控制</span>
       </wa-button>
     </wa-button-group>
     <div class="bar-group">
       <!-- Room id and connection state. Both are filled in by
            teleprompter.ts: the id from the one it resolved for the URL, the
            badge from the signaling callback that already ran. -->
-      <wa-tag id="tagRoom" size="s" appearance="outlined" title="Room"></wa-tag>
-      <wa-badge id="bdgSignaling" variant="neutral" pill>Connecting</wa-badge>
-      <span id="spnViewerCount" class="bar-stat" title="Connected viewers">
+      <wa-tag id="tagRoom" size="s" appearance="outlined" title="房间号"></wa-tag>
+      <wa-badge id="bdgSignaling" variant="neutral" pill>连接中</wa-badge>
+      <span id="spnViewerCount" class="bar-stat" title="已连接的显示器">
         <wa-icon name="display"></wa-icon>
         <span id="spnViewerNum">0</span>
       </span>
       <!-- The gamepad icon appears only while a pad is connected, which is
            also the only feedback the operator gets that the browser has
            noticed it — Chrome hides a pad until a button is pressed. -->
-      <wa-icon id="icnGamepad" class="bar-stat" name="gamepad" title="Game controller connected" hidden></wa-icon>
+      <wa-icon id="icnGamepad" class="bar-stat" name="gamepad" title="已连接游戏手柄" hidden></wa-icon>
       <!-- Shown whenever the displays are not tracking the editor. The Live
            editing switch is remembered across reloads, so without this a
            reload could come back quietly not live and the operator would type
            into a screen showing something else. Same appears-only-when-true
            idiom as the gamepad icon beside it. -->
       <wa-icon id="icnHeld" class="bar-stat bar-warn" name="pause"
-        title="Live editing is off — the displays are showing the last script you sent" hidden></wa-icon>
+        title="实时编辑已关闭——显示器停在最后一次发送的稿件上" hidden></wa-icon>
       <!-- Armed: a wheel or drag over the preview moves every display. Same
            appears-only-when-true idiom as the two icons beside it. -->
       <wa-icon id="icnScrub" class="bar-stat bar-warn" name="arrows-up-down"
-        title="Scrolling the preview moves every display" hidden></wa-icon>
-      <wa-button-group label="Session">
-        <wa-button id="btnPalette" size="s" appearance="outlined" title="Commands (Ctrl+K)">
+        title="滚动预览会同时移动所有显示器" hidden></wa-icon>
+      <wa-button-group label="会话">
+        <wa-button id="btnPalette" size="s" appearance="outlined" title="命令面板（Ctrl+K）">
           <wa-icon slot="start" name="magnifying-glass"></wa-icon>
-          <span class="btn-label">Commands</span>
+          <span class="btn-label">命令</span>
         </wa-button>
-        <wa-button id="btnSettings" size="s" appearance="outlined" title="Settings">
+        <wa-button id="btnSettings" size="s" appearance="outlined" title="设置">
           <wa-icon slot="start" name="gear"></wa-icon>
-          <span class="btn-label">Settings</span>
+          <span class="btn-label">设置</span>
         </wa-button>
         <!-- The local screen: a window on *this* device, which is the only
              kind this button can open or close. Displays on other devices
@@ -94,9 +94,21 @@
              "live" — that answers a different question (is anything, anywhere,
              showing this?). -->
         <wa-button id="btnPop" size="s" appearance="outlined" aria-pressed="false"
-          title="Open a screen on this device">
+          title="在本机再开一个显示窗口">
           <wa-icon slot="start" name="display"></wa-icon>
-          <span class="btn-label">Screen</span>
+          <span class="btn-label">本机显示</span>
+        </wa-button>
+        <!-- The same window, as the other end. Not a second window: that is
+             what the button above is for, and it keeps this page as the
+             controller. This one hands the window over, and the viewer's own
+             button hands it back — two tabs would mean two controllers for one
+             room, and the hub evicts the first. Nothing is lost on the way
+             across: the script and the room's control key are both in
+             localStorage, and the viewer returns with ?room=. -->
+        <wa-button id="btnViewerEnd" size="s" appearance="outlined"
+          title="把当前窗口切换为显示器端">
+          <wa-icon slot="start" name="arrow-right-arrow-left"></wa-icon>
+          <span class="btn-label">显示器</span>
         </wa-button>
       </wa-button-group>
     </div>
@@ -112,7 +124,7 @@
       <div id="pdfPane" hidden>
         <div id="pdfPaneBar">
           <span id="pdfName"></span>
-          <wa-button id="btnClosePdf" size="s" appearance="outlined">Close PDF
+          <wa-button id="btnClosePdf" size="s" appearance="outlined">关闭 PDF
             <wa-icon slot="start" name="xmark"></wa-icon>
           </wa-button>
         </div>
@@ -136,7 +148,7 @@
       <wa-card id="divPreview" appearance="outlined" with-header with-footer>
         <span slot="header" class="card-title">
           <wa-icon name="eye"></wa-icon>
-          Preview
+          预览
         </span>
         <!-- divPreviewBox is the space the preview may use; the container
              inside it is sized by JS to the previewed viewer's aspect ratio
@@ -148,18 +160,18 @@
           </div>
         </div>
         <wa-dropdown id="drpLayouts" slot="footer">
-          <wa-button slot="trigger" size="s" appearance="outlined" with-caret>Viewer Layout
+          <wa-button slot="trigger" size="s" appearance="outlined" with-caret>显示布局
             <wa-icon slot="start" name="window-maximize"></wa-icon>
           </wa-button>
-          <wa-dropdown-item value="theme-default">Clocks &amp; Text
+          <wa-dropdown-item value="theme-default">时钟与文字
             <wa-icon slot="icon" name="window-maximize"></wa-icon>
           </wa-dropdown-item>
-          <wa-dropdown-item value="theme-big-clock">Big Clocks
+          <wa-dropdown-item value="theme-big-clock">大时钟
             <wa-icon slot="icon" name="clock"></wa-icon>
           </wa-dropdown-item>
           <!-- User themes are inserted here at runtime, above the divider. -->
           <wa-divider id="divThemeSplit"></wa-divider>
-          <wa-dropdown-item id="mniNewTheme" value="">New Theme&hellip;
+          <wa-dropdown-item id="mniNewTheme" value="">新建布局&hellip;
             <wa-icon slot="icon" name="plus"></wa-icon>
           </wa-dropdown-item>
         </wa-dropdown>
@@ -169,7 +181,7 @@
       <wa-card id="divTransport" appearance="outlined" with-header>
         <span slot="header" class="card-title">
           <wa-icon name="sliders"></wa-icon>
-          Transport
+          滚动控制
         </span>
         <div class="divSliders">
           <!-- The numeric readouts. The sliders are the control, but the
@@ -178,11 +190,26 @@
                are written by #renderTransport, which reads the sliders. -->
           <div class="slider-column">
             <output id="outSpeed" class="transport-readout" for="rngSpeed">0</output>
-            <wa-slider id="rngSpeed" label="Scroll Speed" min="-500" max="500" step="0.1" value="0"
-              orientation="vertical" indicator-offset="0" with-tooltip title="Right-click to reset">
-              <span slot="reference">Reverse</span>
-              <span slot="reference">Stop</span>
-              <span slot="reference">Forward</span>
+            <!-- A step either side of the number, because a vertical track is
+                 the worst shape for the device this panel is usually used on:
+                 200px of glass for a thousand speed units means a thumb that
+                 lands one pixel out lands five units out. Left is slower, right
+                 is faster, which is what the number between them does — the
+                 track runs Reverse to Forward, so up and down would disagree
+                 with it. See #wireTransportStepper for the repeat. -->
+            <div class="step-row">
+              <button type="button" id="btnSpeedDown" class="step-btn" title="更慢" aria-label="变慢">
+                <wa-icon name="minus"></wa-icon>
+              </button>
+              <button type="button" id="btnSpeedUp" class="step-btn" title="更快" aria-label="变快">
+                <wa-icon name="plus"></wa-icon>
+              </button>
+            </div>
+            <wa-slider id="rngSpeed" label="滚动速度" min="-500" max="500" step="0.1" value="0"
+              orientation="vertical" indicator-offset="0" with-tooltip title="右键重置">
+              <span slot="reference">倒回</span>
+              <span slot="reference">停止</span>
+              <span slot="reference">前进</span>
             </wa-slider>
           </div>
           <!-- Tenths of a rem of viewer text, so 30 is 3rem. step="1" because
@@ -191,10 +218,20 @@
                out of reach of the slider and settable only from code. -->
           <div class="slider-column">
             <output id="outScale" class="transport-readout" for="rngScale">3.0</output>
-            <wa-slider id="rngScale" label="Text Scale" min="1" max="100" step="1" value="30" orientation="vertical"
-              with-markers with-tooltip title="Right-click to reset">
-              <span slot="reference">Larger</span>
-              <span slot="reference">Smaller</span>
+            <!-- Same reason as the speed column. Left is smaller, right is
+                 larger — the same order as the number and the markers. -->
+            <div class="step-row">
+              <button type="button" id="btnScaleDown" class="step-btn" title="更小" aria-label="缩小字号">
+                <wa-icon name="minus"></wa-icon>
+              </button>
+              <button type="button" id="btnScaleUp" class="step-btn" title="更大" aria-label="放大字号">
+                <wa-icon name="plus"></wa-icon>
+              </button>
+            </div>
+            <wa-slider id="rngScale" label="字号" min="1" max="100" step="1" value="30" orientation="vertical"
+              with-markers with-tooltip title="右键重置">
+              <span slot="reference">放大</span>
+              <span slot="reference">缩小</span>
             </wa-slider>
           </div>
         </div>
@@ -202,18 +239,18 @@
       <wa-card appearance="outlined" with-header>
         <span slot="header" class="card-title">
           <wa-icon name="clock"></wa-icon>
-          Clocks
+          时钟
         </span>
         <tp-clock-control id="tpClockControl"></tp-clock-control>
         <div class="clock-row">
-          <span class="clock-label">Time of day</span>
+          <span class="clock-label">当前时间</span>
           <tp-clock type="clock"></tp-clock>
         </div>
       </wa-card>
       <wa-card appearance="outlined" with-header>
         <span slot="header" class="card-title">
           <wa-icon name="comment"></wa-icon>
-          Message
+          消息
         </span>
         <!-- No `label`: the card is titled "Message" and the field repeated it
              directly underneath. The placeholder carries the hint and
@@ -231,12 +268,12 @@
              a box would become the single flex item with the field and button
              nested inside it. -->
         <form id="frmMessage">
-          <wa-input id="txtMessage" placeholder="Message for the talent" aria-label="Message">
+          <wa-input id="txtMessage" placeholder="给主播的提示" aria-label="消息">
             <wa-icon name="message" slot="start"></wa-icon>
           </wa-input>
           <wa-button id="btnMessage" type="submit" size="s" variant="brand" appearance="outlined">
             <wa-icon name="paper-plane" slot="start"></wa-icon>
-            Send Message
+            发送消息
           </wa-button>
         </form>
       </wa-card>
@@ -248,23 +285,23 @@
       <wa-card id="divSync" appearance="outlined" with-header>
         <span slot="header" class="card-title">
           <wa-icon name="right-left"></wa-icon>
-          Sync
+          同步
         </span>
-        <wa-button-group label="Scroll position" class="sync-pair">
-          <wa-button id="btnGoToViewers" size="s" appearance="outlined">Go to viewers
+        <wa-button-group label="滚动位置" class="sync-pair">
+          <wa-button id="btnGoToViewers" size="s" appearance="outlined">跳到显示器位置
             <wa-icon slot="start" name="download"></wa-icon>
           </wa-button>
-          <wa-button id="btnSendPosition" size="s" variant="brand">Send my position
+          <wa-button id="btnSendPosition" size="s" variant="brand">发送我的位置
             <wa-icon slot="start" name="upload"></wa-icon>
           </wa-button>
         </wa-button-group>
         <!-- Text size, so the two panes put the same words on each line and the
              position buttons above land somewhere recognisable. -->
-        <wa-button-group label="Text size" class="sync-pair">
-          <wa-button id="btnMatchScale" size="s" appearance="outlined">Match viewers' size
+        <wa-button-group label="字号" class="sync-pair">
+          <wa-button id="btnMatchScale" size="s" appearance="outlined">跟随显示器字号
             <wa-icon slot="start" name="text-height"></wa-icon>
           </wa-button>
-          <wa-button id="btnSendScale" size="s" variant="brand">Send my size
+          <wa-button id="btnSendScale" size="s" variant="brand">发送我的字号
             <wa-icon slot="start" name="text-height"></wa-icon>
           </wa-button>
         </wa-button-group>
@@ -275,19 +312,33 @@
              comes from. -->
         <wa-divider></wa-divider>
         <wa-switch id="swLiveEditing" checked
-          hint="Off holds your edits back, so you can open another document or fix something ahead without it appearing on the displays.">
-          Live editing
+          hint="关闭后你的修改不会外发，可以先打开别的稿件或提前修正，显示器不会跟着变。">
+          实时编辑
         </wa-switch>
         <wa-button id="btnPushContent" size="s" appearance="outlined" variant="brand"
-          title="Send the script to the displays">Send my script
+          title="把稿件发送到显示器">发送我的稿件
           <wa-icon slot="start" name="upload"></wa-icon>
         </wa-button>
       </wa-card>
       <wa-card id="divViewersCard" appearance="outlined" with-header>
         <span slot="header" class="card-title">
           <wa-icon name="display"></wa-icon>
-          Viewers
+          显示器
         </span>
+        <!-- The room code, above the link and the QR code, because it is the
+             one of the three that needs no channel to travel down: the
+             operator reads it out and whoever is at the display types it into
+             /viewer. Six digits, which is why it is worth showing at this size
+             — the tag in the app bar is hidden on a phone, and that is exactly
+             the device the code gets read from. -->
+        <div id="divRoomCode">
+          <span class="room-code-label">房间号</span>
+          <code id="codeRoom"></code>
+          <wa-copy-button id="btnCopyRoom" value=""></wa-copy-button>
+        </div>
+        <p id="pRoomHint" class="room-hint">
+          在另一台设备上打开 /viewer，输入这个房间号。
+        </p>
         <!-- The link a viewer device opens. The anchor stays the one source of
              the URL — the copy button and the QR code below are both handed the
              same string — so none of the three can drift from the others. -->
@@ -297,11 +348,11 @@
         </div>
         <!-- Collapsed by default: on a phone this is faster than typing the
              URL, but it is only needed while a display is being set up. -->
-        <wa-details id="dtlQr" summary="Scan to join">
+        <wa-details id="dtlQr" summary="扫码加入">
           <!-- 200 rather than 160: a viewer URL encodes to a 44-module symbol,
                so this is 4.55px a module for a phone camera to resolve. Fits
                the sidebar at its narrowest (316px). -->
-          <wa-qr-code id="qrViewerLink" value="" size="200" label="Viewer link"></wa-qr-code>
+          <wa-qr-code id="qrViewerLink" value="" size="200" label="显示器链接"></wa-qr-code>
         </wa-details>
         <div id="divViewers"></div>
       </wa-card>
@@ -319,62 +370,62 @@
        generated name and selected, so Enter keeps it and typing replaces it —
        naming a document must not become a step the operator has to complete
        before a service. -->
-  <wa-dialog id="dlgNew" label="New Document" class="dialog-focus">
+  <wa-dialog id="dlgNew" label="新建稿件" class="dialog-focus">
     <form id="frmNew">
-      <wa-input autofocus label="Name"></wa-input>
+      <wa-input autofocus label="名称"></wa-input>
     </form>
-    <wa-button name="create" type="submit" form="frmNew" slot="footer" variant="primary">Create</wa-button>
-    <wa-button name="cancel" slot="footer">Cancel</wa-button>
+    <wa-button name="create" type="submit" form="frmNew" slot="footer" variant="primary">创建</wa-button>
+    <wa-button name="cancel" slot="footer">取消</wa-button>
   </wa-dialog>
-  <wa-dialog id="dlgRename" label="Rename Document" class="dialog-focus">
+  <wa-dialog id="dlgRename" label="重命名稿件" class="dialog-focus">
     <form id="frmRename">
       <wa-input autofocus></wa-input>
       <input type="hidden"></input>
     </form>
-    <wa-button name="save" type="submit" form="frmRename" slot="footer" variant="primary">Save</wa-button>
-    <wa-button name="cancel" slot="footer">Cancel</wa-button>
+    <wa-button name="save" type="submit" form="frmRename" slot="footer" variant="primary">保存</wa-button>
+    <wa-button name="cancel" slot="footer">取消</wa-button>
   </wa-dialog>
-  <wa-dialog id="dlgDelete" label="Delete Document" class="dialog-focus">
+  <wa-dialog id="dlgDelete" label="删除稿件" class="dialog-focus">
     <!-- Filled in by docControls so the prompt names the document. -->
     <p id="pDeleteDoc"></p>
-    <wa-button name="delete" slot="footer" variant="danger">Delete</wa-button>
-    <wa-button name="cancel" slot="footer">Cancel</wa-button>
+    <wa-button name="delete" slot="footer" variant="danger">删除</wa-button>
+    <wa-button name="cancel" slot="footer">取消</wa-button>
     <input type="hidden"></input>
   </wa-dialog>
   <!-- The theme editor. The hidden input carries the slug being edited, the
        same identity idiom as the document dialogs above. Edits are pushed to
        viewers live while this is open, so the preview beside it is the
        feedback loop — there is no separate "apply" step. -->
-  <wa-dialog id="dlgTheme" label="Edit Theme">
-    <wa-input id="txtThemeName" label="Name" autofocus></wa-input>
+  <wa-dialog id="dlgTheme" label="编辑布局">
+    <wa-input id="txtThemeName" label="名称" autofocus></wa-input>
     <input type="hidden"></input>
     <div id="divThemeEditor"></div>
     <div id="divThemeProblems" hidden></div>
-    <wa-button name="save" slot="footer" variant="primary">Save</wa-button>
-    <wa-button name="cancel" slot="footer">Cancel</wa-button>
+    <wa-button name="save" slot="footer" variant="primary">保存</wa-button>
+    <wa-button name="cancel" slot="footer">取消</wa-button>
   </wa-dialog>
-  <wa-dialog id="dlgThemeDelete" label="Delete Theme" class="dialog-focus">
-    Are you sure you want to delete theme
-    <wa-button name="delete" slot="footer" variant="primary">Delete</wa-button>
-    <wa-button name="cancel" slot="footer">Cancel</wa-button>
+  <wa-dialog id="dlgThemeDelete" label="删除布局" class="dialog-focus">
+    确定删除布局
+    <wa-button name="delete" slot="footer" variant="primary">删除</wa-button>
+    <wa-button name="cancel" slot="footer">取消</wa-button>
     <input type="hidden"></input>
   </wa-dialog>
   <!-- The operator's own preferences for this browser. No save step: each
        control persists as it is changed, because everything in here takes
        effect on the next gesture and there is nothing to commit. -->
-  <wa-dialog id="dlgSettings" label="Settings">
-    <wa-switch id="swInvertWheel" hint="Flip which way a wheel or trackpad moves a slider's thumb. Turn this on if scrolling down moves a slider up.">
-      Reverse slider scrolling
+  <wa-dialog id="dlgSettings" label="设置">
+    <wa-switch id="swInvertWheel" hint="反转滚轮或触控板推动滑块的方向。往下滚滑块反而上升时打开它。">
+      反转滑块滚动方向
     </wa-switch>
     <!-- Says plainly what it arms, because what it arms moves what the
          audience is reading. The preview shows a marker while it is on. -->
-    <wa-switch id="swPreviewScrub" hint="Scroll or drag the preview to move every display, like scrolling the screen itself. While this is off the preview ignores your pointer.">
-      Scroll the show from the preview
+    <wa-switch id="swPreviewScrub" hint="滚动或拖动预览区即可移动所有显示器，就像直接滚显示器本身。关闭时预览区不响应指针。">
+      在预览区滚动全场
     </wa-switch>
     <!-- Only the countdown's "Time of day" mode reads this, and only when
          Reset is pressed. Off, a target that has gone counts up past zero. -->
-    <wa-switch id="swRollTarget" hint="When a countdown's target time has already passed today, count down to the same time tomorrow instead of counting up past zero.">
-      Roll a past target time to tomorrow
+    <wa-switch id="swRollTarget" hint="倒计时目标时刻今天已过时，顺延到明天的同一时刻，而不是越过零继续正计时。">
+      目标时刻已过则顺延到明天
     </wa-switch>
     <!-- Defaults on, unlike the switches above: a wheel notch forwarded whole
          moves every display in one jolt, which is what the code happened to do
@@ -383,8 +434,8 @@
          deltas, and easing that only adds lag. Only the wheel is eased; a drag
          has to keep tracking the finger. -->
     <wa-switch id="swSmoothScrub" checked
-      hint="Smooths a wheel scroll over the preview, for a mouse that jumps several lines per notch. Turn it off for raw scrolling, which a good trackpad or a high-resolution wheel does not need.">
-      Smooth mouse scrolling over the preview
+      hint="对逐格跳好几行的鼠标，把预览区的滚轮移动做平滑。触控板或高分辨率滚轮不需要，可直接关掉。">
+      预览区鼠标滚动平滑
     </wa-switch>
     <!-- Defaults on, like live editing and unlike the rest: there is no light
          mode for a pasted white page to be correct against, so off is not a
@@ -392,17 +443,17 @@
          filter would not be, which is why it is a switch at all — undo and
          Ctrl+Shift+V are the ways back. -->
     <wa-switch id="swBrightenPaste" checked
-      hint="Recolour pasted text so it reads on a dark screen: black becomes the display's own white, and colours like red and green stay red and green. Turn this off to paste colours exactly as they were copied.">
-      Brighten pasted text
+      hint="把粘贴进来的黑字转成屏幕上的白字，红绿等颜色保持不变。关闭则完全按复制时的颜色粘贴。">
+      粘贴文字自动提亮
     </wa-switch>
-    <wa-button name="close" slot="footer" variant="primary">Done</wa-button>
+    <wa-button name="close" slot="footer" variant="primary">完成</wa-button>
   </wa-dialog>
   <!-- The command palette (Ctrl+K), which doubles as the shortcut cheatsheet
        (Ctrl+/) — same dialog, same list, filtered. The rows are rendered by
        paletteControls.ts from the one command table the key bindings use, so
        the shortcut shown here is always the shortcut that fires. -->
-  <wa-dialog id="dlgPalette" label="Commands" class="palette">
-    <wa-input id="txtPalette" placeholder="Type a command&hellip;" autofocus>
+  <wa-dialog id="dlgPalette" label="命令" class="palette">
+    <wa-input id="txtPalette" placeholder="输入命令&hellip;" autofocus>
       <wa-icon name="magnifying-glass" slot="start"></wa-icon>
     </wa-input>
     <div id="divPaletteList" role="listbox"></div>

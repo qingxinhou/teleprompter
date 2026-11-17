@@ -48,38 +48,38 @@ export const DEFAULT_COLOUR_ID = "default";
 export const SCRIPT_COLOURS: ScriptColour[] = [
   {
     id: DEFAULT_COLOUR_ID,
-    name: "Default",
+    name: "默认",
     hex: "",
-    keywords: ["none", "clear", "remove", "white", "normal", "reset"],
+    keywords: ["none", "clear", "remove", "white", "normal", "reset", "默认", "还原", "清除"],
   },
-  { id: "white", name: "White", hex: "#ffffff", keywords: ["plain"] },
+  { id: "white", name: "白色", hex: "#ffffff", keywords: ["plain", "白", "普通"] },
   {
     id: "yellow",
-    name: "Yellow",
+    name: "黄色",
     hex: "#ffd400",
-    keywords: ["cue", "emphasis", "highlight"],
+    keywords: ["cue", "emphasis", "highlight", "提示", "强调", "黄"],
   },
-  { id: "amber", name: "Amber", hex: "#ff9e2c", keywords: ["orange"] },
+  { id: "amber", name: "琥珀", hex: "#ff9e2c", keywords: ["orange", "橙", "琥珀"] },
   {
     id: "red",
-    name: "Red",
+    name: "红色",
     hex: "#ff5c5c",
-    keywords: ["warning", "stop", "danger"],
+    keywords: ["warning", "stop", "danger", "警告", "红", "危险"],
   },
   {
     id: "green",
-    name: "Green",
+    name: "绿色",
     hex: "#5cff8f",
-    keywords: ["go", "safe", "action"],
+    keywords: ["go", "safe", "action", "绿", "安全", "动作"],
   },
-  { id: "cyan", name: "Cyan", hex: "#5cd8ff", keywords: ["teal", "aqua"] },
+  { id: "cyan", name: "青色", hex: "#5cd8ff", keywords: ["teal", "aqua", "青", "蓝绿"] },
   {
     id: "blue",
-    name: "Blue",
+    name: "蓝色",
     hex: "#7aa2ff",
     keywords: ["cornflower", "speaker"],
   },
-  { id: "magenta", name: "Magenta", hex: "#ff7ae0", keywords: ["pink"] },
+  { id: "magenta", name: "品红", hex: "#ff7ae0", keywords: ["pink"] },
 ];
 
 /** Look one up by id, for a command or a remembered choice. */

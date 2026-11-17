@@ -14,6 +14,24 @@ on the floor, a laptop across the room, a phone — and it joins as a display.
 **Screen** in the app bar opens one on _this_ machine and closes it again; it
 lights up while that window is open.
 
+**Viewer**, beside it, takes this window across to the other end instead — the
+same tab, no second window. On a display there is a **Controls** pill in the
+bottom corner, which appears when the screen is touched or the pointer moves
+over it and fades three seconds later, so it is not in the shot. Either way the
+room travels in the URL, so the page you arrive on is the room you left rather
+than a new one, and the script and its place are waiting.
+
+This is two roles of one window, not two windows: a second control page for the
+same room would be a second controller, and the newest one evicts the old. The
+trade is that while the control page is off being a display, the room has no
+controller — a television left running says it is waiting until you switch
+back. **Screen** is the button for "a display as well, without giving up
+control"; **Viewer** is the button for "this device is the display now".
+
+On a touch screen the pill takes two taps: the first brings it up, the second
+follows it. That is deliberate — the bottom corner of a display should not be a
+live link that a finger can find by accident.
+
 **Whether it opens fullscreen depends on having a second screen**, and that is a
 browser rule rather than a setting. With two displays and the window-management
 permission granted, Chrome opens it fullscreen on the other screen — that is
@@ -192,6 +210,14 @@ the text travels, and up is reverse. **Space** starts and stops the scroll
 without forgetting the speed, which is a different thing from setting the speed
 to zero — zero leaves the pacer running for a cue you are about to jump to.
 
+Both sliders in the Transport card have a **−** and a **+** under the number.
+One tap moves the number by one; holding repeats, and the repeat speeds up in
+two stages, so a long press crosses the range without a hundred taps. They exist
+because a finger on the track cannot land on a value: the speed track is a few
+hundred pixels for a thousand units, so one pixel of travel is several units.
+The track stays the fast way to cover ground; the steps are the way to land on
+a number.
+
 Exactly one display paces the scroll. **Allow drive** picks which; without a
 pick it is the first to connect. Only that display can also be scrolled by hand,
 and only it integrates the speed — two displays each running their own clock
@@ -321,7 +347,9 @@ than guessed at.
 
 ## Settings
 
-Per-browser preferences, in the gear:
+Per-browser preferences, in the gear. On a phone the gear is not in the app bar —
+four icon buttons, the pane tabs and the status badge do not fit one row — and
+**Commands** holds the same dialog, as `Settings`.
 
 - **Reverse slider scrolling** — whether a wheel over a slider moves the thumb
   the other way. Which physical direction a scroll reports is decided by your

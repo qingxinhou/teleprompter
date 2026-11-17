@@ -3,7 +3,7 @@ import {
   registerClockControlComponent,
   TPClockControl,
 } from "./clock.ts";
-import { randomID } from "./ids.ts";
+import { randomID, roomCode } from "./ids.ts";
 import { parseTimer, serialiseTimer } from "./timer.ts";
 
 import WaSplitPanel from "@awesome.me/webawesome/dist/components/split-panel/split-panel.js";
@@ -87,6 +87,16 @@ import { ThemeControls } from "./themeControls.ts";
 // preferences, and a countdown is not a preference.
 const TIMER_KEY = "teleprompter.timer";
 
+/** WebRTC 连接状态在显示器列表里的显示名。 */
+const VIEWER_STATE_LABELS: Record<string, string> = {
+  new: "待连接",
+  connecting: "连接中",
+  connected: "已连接",
+  disconnected: "已断开",
+  failed: "连接失败",
+  closed: "已关闭",
+};
+
 interface ViewerEntry {
   dims: { width: number; height: number } | null;
   state: RTCPeerConnectionState | "new";
@@ -120,6 +130,10 @@ export class Teleprompter {
   editor: Wordgard;
   rngSpeed: WaSlider;
   rngScale: WaSlider;
+  btnSpeedDown: HTMLButtonElement;
+  btnSpeedUp: HTMLButtonElement;
+  btnScaleDown: HTMLButtonElement;
+  btnScaleUp: HTMLButtonElement;
   themeControls: ThemeControls;
   tpClockControl: TPClockControl;
   ifrmPreview: HTMLIFrameElement;
@@ -127,6 +141,7 @@ export class Teleprompter {
   lnkViewerLink: HTMLAnchorElement;
   controls: HTMLDivElement;
   btnPop: WaButton;
+  btnViewerEnd: WaButton;
   btnGoToViewers: WaButton;
   btnSendPosition: WaButton;
   btnMatchScale: WaButton;
@@ -276,6 +291,7 @@ export class Teleprompter {
 
     // Select elements.
     this.btnPop = document.querySelector("#btnPop")!;
+    this.btnViewerEnd = document.querySelector("#btnViewerEnd")!;
     this.btnGoToViewers = document.querySelector("#btnGoToViewers")!;
     this.btnSendPosition = document.querySelector("#btnSendPosition")!;
     this.btnMatchScale = document.querySelector("#btnMatchScale")!;
@@ -292,6 +308,10 @@ export class Teleprompter {
     this.btnMessage = document.querySelector("#btnMessage")!;
     this.rngSpeed = document.querySelector("#rngSpeed")!;
     this.rngScale = document.querySelector("#rngScale")!;
+    this.btnSpeedDown = document.querySelector("#btnSpeedDown")!;
+    this.btnSpeedUp = document.querySelector("#btnSpeedUp")!;
+    this.btnScaleDown = document.querySelector("#btnScaleDown")!;
+    this.btnScaleUp = document.querySelector("#btnScaleUp")!;
     this.controls = document.querySelector("#controls")!;
     this.tpClockControl = document.querySelector("#tpClockControl")!;
     this.#pdfPane = <HTMLDivElement> document.querySelector("#pdfPane");
@@ -320,6 +340,10 @@ export class Teleprompter {
 
     this.roomID = this.#ensureRoomID();
     document.querySelector("#tagRoom")!.textContent = this.roomID;
+    // Same string in three places: the status tag, the sidebar block a code is
+    // read off, and the copy button beside it. One value, so they cannot drift.
+    document.querySelector("#codeRoom")!.textContent = this.roomID;
+    (<WaCopyButton> document.querySelector("#btnCopyRoom")).value = this.roomID;
     this.#viewerURL = `${location.origin}/viewer?room=${this.roomID}`;
     this.lnkViewerLink.href = this.#viewerURL;
     this.lnkViewerLink.textContent = this.#viewerURL;
@@ -445,6 +469,7 @@ export class Teleprompter {
     this.docControls.loadCurrent();
 
     this.btnPop.addEventListener("click", this.listenPop.bind(this));
+    this.btnViewerEnd.addEventListener("click", () => this.switchToViewerEnd());
     // How a local screen this page did not open — because the page has since
     // reloaded — gets picked back up. See #listenPopHello.
     self.addEventListener("message", this.#listenPopHello.bind(this));
@@ -490,6 +515,18 @@ export class Teleprompter {
     });
     this.rngSpeed.addEventListener("input", this.listenRangeSpeed.bind(this));
     this.rngScale.addEventListener("input", this.listenRangeScale.bind(this));
+    // The steps either side of each number. They drive the slider rather than
+    // the settings, so everything downstream — the readout, the wire, the
+    // viewers — is reached by the one path a drag already takes.
+    //
+    // The speed column's directions are the opposite of its buttons: scroll
+    // speed is `-value` (see listenSpeedWheel), so "faster" is a step *down*
+    // the slider. Wired the other way round it read -1 on the first tap, which
+    // is the arithmetic working and the labels lying.
+    this.#wireTransportStepper(this.btnSpeedDown, this.rngSpeed, 1);
+    this.#wireTransportStepper(this.btnSpeedUp, this.rngSpeed, -1);
+    this.#wireTransportStepper(this.btnScaleDown, this.rngScale, -1);
+    this.#wireTransportStepper(this.btnScaleUp, this.rngScale, 1);
     // Right-click resets a slider. There is nothing else a context menu on a
     // slider could usefully offer, and the palette's "Reset sliders" covers
     // the operator who never thinks to try it.
@@ -700,7 +737,11 @@ export class Teleprompter {
     const params = new URLSearchParams(location.search);
     let room = params.get("room");
     if (!room) {
-      room = randomID().slice(0, 8);
+      // Short and numeric, because this is read aloud to whoever is setting up
+      // the display — see `roomCode`. Rooms minted before this change keep
+      // their eight hex characters: a room id is whatever the URL says, so old
+      // links and old rooms keep working.
+      room = roomCode();
       params.set("room", room);
       history.replaceState(null, "", `${location.pathname}?${params}`);
     }
@@ -1461,8 +1502,8 @@ export class Teleprompter {
     }
     if (local + remote === 0) return `${this.viewers.size}`;
     const parts: string[] = [];
-    if (local) parts.push(`${local} local`);
-    if (remote) parts.push(`${remote} remote`);
+    if (local) parts.push(`${local} 本机`);
+    if (remote) parts.push(`${remote} 远程`);
     // Any display still to report is counted here but named in neither part,
     // so say so rather than letting the parts quietly fail to add up.
     const pending = this.viewers.size - local - remote;
@@ -1491,12 +1532,12 @@ export class Teleprompter {
 
   #renderStatus() {
     const shown = this.#signaling === "denied"
-      ? { variant: "danger", text: "No control", attention: "none" }
+      ? { variant: "danger", text: "无控制权", attention: "none" }
       : this.#signaling === "disconnected"
-      ? { variant: "warning", text: "Reconnecting", attention: "none" }
+      ? { variant: "warning", text: "重连中", attention: "none" }
       : this.#liveViewers() === 0
-      ? { variant: "neutral", text: "No viewers", attention: "none" }
-      : { variant: "success", text: "Live", attention: "pulse" };
+      ? { variant: "neutral", text: "无显示器", attention: "none" }
+      : { variant: "success", text: "直播中", attention: "pulse" };
     this.#bdgSignaling.variant = <WaBadge["variant"]> shown.variant;
     this.#bdgSignaling.attention = <WaBadge["attention"]> shown.attention;
     this.#bdgSignaling.textContent = shown.text;
@@ -1544,13 +1585,13 @@ export class Teleprompter {
       where.textContent = entry.local === null
         ? "…"
         : entry.local
-        ? "Local"
-        : "Remote";
+        ? "本机"
+        : "远程";
       row.appendChild(where);
 
       const state = document.createElement("span");
       state.className = "viewer-state";
-      state.textContent = entry.state;
+      state.textContent = VIEWER_STATE_LABELS[entry.state] ?? entry.state;
       row.appendChild(state);
 
       // Radio, not a checkbox: the preview can only be shaped like one
@@ -1562,7 +1603,7 @@ export class Teleprompter {
       radio.checked = id === previewID;
       radio.addEventListener("change", () => this.#setPreview(id));
       previewLabel.appendChild(radio);
-      previewLabel.appendChild(document.createTextNode("preview"));
+      previewLabel.appendChild(document.createTextNode("预览"));
       row.appendChild(previewLabel);
 
       // Also a radio, and for a stronger reason than the preview's: exactly
@@ -1578,7 +1619,7 @@ export class Teleprompter {
       driveRadio.checked = id === driverID;
       driveRadio.addEventListener("change", () => this.#setDriver(id));
       driveLabel.appendChild(driveRadio);
-      driveLabel.appendChild(document.createTextNode("drive"));
+      driveLabel.appendChild(document.createTextNode("驱动"));
       row.appendChild(driveLabel);
 
       // A way out for a link that has failed and is not coming back. Offered
@@ -1590,9 +1631,8 @@ export class Teleprompter {
         const drop = document.createElement("button");
         drop.type = "button";
         drop.className = "viewer-drop";
-        drop.textContent = "Remove";
-        drop.title = "Forget this display. Its connection has failed; if it " +
-          "is still reachable it will rejoin with a fresh link.";
+        drop.textContent = "移除";
+        drop.title = "放弃这个显示器。连接已经失败；如果它还在线，会以新连接重新加入。";
         drop.addEventListener("click", () => this.#dropViewer(id));
         row.appendChild(drop);
       }
@@ -1609,6 +1649,30 @@ export class Teleprompter {
     // Content now travels over a live data channel rather than a manual
     // "update" action, so every edit is a good moment to push it.
     this.updateMain();
+  }
+
+  /**
+   * Hand this window over to the other end.
+   *
+   * Same tab, deliberately: two control pages for one room means two
+   * controllers, and the hub evicts the first, so opening the viewer as a
+   * second tab and then pressing Control there would leave a dead page behind
+   * the live one. The Screen button beside this is the other need — a second
+   * window on this device with control kept.
+   *
+   * Nothing is lost on the way out. The script is in localStorage (and the
+   * write is flushed on pagehide), the room's control key is there too, and the
+   * viewer's switch comes back with the room in its URL, so this page returns
+   * to the room it left rather than minting a new one.
+   *
+   * The room does empty while the window is away: this was its only
+   * controller, so any display left running says it is waiting. That is what
+   * switching the operator's own window to a display means, and it is why the
+   * button is here rather than on every page.
+   */
+  switchToViewerEnd() {
+    if (!this.#viewerURL) return;
+    location.assign(this.#viewerURL);
   }
 
   /**
@@ -1794,8 +1858,8 @@ export class Teleprompter {
     this.btnPop.variant = on ? "brand" : "neutral";
     this.btnPop.setAttribute("aria-pressed", String(on));
     this.btnPop.title = on
-      ? "Close the local screen"
-      : "Open a screen on this device";
+      ? "关闭本机显示窗口"
+      : "在本机再开一个显示窗口";
   }
 
   /**
@@ -1826,6 +1890,97 @@ export class Teleprompter {
 
   listenRangeScale() {
     this.#pushSettings({ textScale: this.rngScale.value / 10 });
+  }
+
+  /**
+   * A step either side of a slider: one tap, one unit of the readout; holding
+   * repeats.
+   *
+   * The track is the problem this solves. A vertical wa-slider is 200px of
+   * glass for the speed range's thousand units, so one pixel of thumb travel is
+   * five units, and a thumb that lands one pixel out lands five units out. On a
+   * mouse that is a nuisance; on the phone or tablet this panel is normally
+   * driven from, it is the whole interaction. A tap moves the number by exactly
+   * one, which is the number the operator was aiming at.
+   *
+   * `direction` is in slider units, not display units. Speed is `-value` (the
+   * inversion is documented on listenSpeedWheel), so +1 here is -1 to the
+   * number in the speed column and +1 to the one in the scale column. Both
+   * columns are wired the same way and #renderTransport does the flip, because
+   * a step that means "up" in one column and "down" in the other is a bug
+   * waiting for the first person to reuse this.
+   *
+   * Repeat, because one unit a tap is a hundred and twenty taps to reach a
+   * reading speed. The magnitude grows in three tiers — 1, then 5, then 20 —
+   * and the first tier holds for half a second, so a press that was meant to be
+   * a single tap stays exactly one. A timer, not requestAnimationFrame: a held
+   * button has nothing to draw, and rAF would tie the repeat rate to whether
+   * the page happens to be painting viewers.
+   */
+  #wireTransportStepper(
+    button: HTMLButtonElement,
+    slider: WaSlider,
+    direction: 1 | -1,
+  ) {
+    let delay = 0;
+    let repeat = 0;
+    let ticks = 0;
+
+    const stop = () => {
+      clearTimeout(delay);
+      clearInterval(repeat);
+      delay = repeat = ticks = 0;
+      button.removeAttribute("data-stepping");
+    };
+
+    const step = () => {
+      const magnitude = ticks < 8 ? 1 : ticks < 20 ? 5 : 20;
+      ticks++;
+      const min = Number.isFinite(slider.min) ? slider.min : -Infinity;
+      const max = Number.isFinite(slider.max) ? slider.max : Infinity;
+      const next = Math.min(max, Math.max(min, slider.value + direction * magnitude));
+      // At the end of the track, and only there: the readout must not flicker
+      // or the wire see a settings burst for a value that did not change.
+      if (next === slider.value) return;
+      slider.value = next;
+      // The event the component fires when a thumb moves, so the funnel that
+      // already exists for drags does the rest: readout, throttle, wire.
+      slider.dispatchEvent(new Event("input"));
+    };
+
+    // pointerdown, not click: a held press has to act on the way down, not on
+    // the way up, and the button therefore never listens for a click at all —
+    // otherwise a single press would step once on down and once on up.
+    button.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      // Keeps the press from selecting the readout beside it or scrolling the
+      // panel, and keeps :active honest while the pointer is captured.
+      e.preventDefault();
+      stop();
+      step();
+      button.setAttribute("data-stepping", "");
+      delay = window.setTimeout(() => {
+        repeat = window.setInterval(step, 60);
+      }, 450);
+    });
+    // pointercancel covers the touch that turns into a scroll or a system
+    // gesture; blur covers tabbing away mid-press.
+    for (const type of ["pointerup", "pointercancel", "pointerleave"]) {
+      button.addEventListener(type, stop);
+    }
+    button.addEventListener("blur", stop);
+
+    // Keyboard, for the operator not on the glass. The browser's own key repeat
+    // supplies the hold, so one step per event is all this needs — but the tier
+    // counter still counts them, so a held Enter speeds up like a held thumb.
+    button.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      if (!button.hasAttribute("data-stepping")) ticks = 0;
+      button.setAttribute("data-stepping", "");
+      step();
+    });
+    button.addEventListener("keyup", stop);
   }
 
   /**
@@ -2485,7 +2640,7 @@ export class Teleprompter {
     this.#icnHeld.hidden = on;
     this.btnPushContent.appearance = this.#draftHeld ? "accent" : "outlined";
     this.btnPushContent.title = this.#draftHeld
-      ? "The displays are behind the editor — send the script now"
-      : "Send the script to the displays";
+      ? "显示器落后于编辑区——现在发送稿件"
+      : "把稿件发送到显示器";
   }
 }

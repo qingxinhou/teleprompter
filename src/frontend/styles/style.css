@@ -216,8 +216,21 @@ body {
   }
 
   /* Nothing to pop out to on a phone: window.open would land on top of the
-     control page, which is the one thing the operator needs to keep. */
+     control page, which is the one thing the operator needs to keep. The
+     Viewer switch beside it is the phone's version of the same trip — it takes
+     this window across rather than opening one. */
   #btnPop {
+    display: none;
+  }
+
+  /* Settings gives its width to that switch, because at 375-390px one of the
+     two has to: four icon buttons, the pane tabs and the status badge are a
+     row's worth plus a little. Settings is the one that is set once and then
+     left alone, and the palette carries it behind the Commands button that
+     stays; the switch is what an operator reaches for with the phone in hand,
+     as a display. Below ~360px the bar was already two rows before any of
+     this, so nothing is lost there that was not already given up. */
+  #btnSettings {
     display: none;
   }
 
@@ -405,6 +418,65 @@ body {
   color: var(--wa-color-text-normal);
 }
 
+/* The step row. Sized for a thumb rather than for the pointer-and-hover this
+   panel was first built against: 44 by 40 is the smallest pair of numbers that
+   still reads as one target rather than as a decoration, and the two sit either
+   side of the column's centre so the eye finds them without hunting. A plain
+   <button> rather than wa-button because these two also have to take pointer
+   events directly and repeat while held, and because a step button that is a
+   size off from the number above it is the point — it is deliberately not the
+   same component as the slider it drives. */
+.step-row {
+  display: flex;
+  gap: var(--wa-space-2xs, 0.25rem);
+}
+
+/* A slider's reference names must stay on one line. Chinese breaks between any
+   two characters, so a slot only as wide as one glyph turns "倒回" into a
+   vertical column — where the English "Reverse" merely overflowed and read
+   fine. Measured with the slot at its natural width; nowrap is the fix that
+   does not depend on the text. */
+.slider-column wa-slider [slot="reference"] {
+  white-space: nowrap;
+}
+
+.step-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 2.75rem;
+  min-block-size: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--wa-color-neutral-border-quiet, #4a4a4a);
+  border-radius: var(--wa-border-radius-m, 4px);
+  background-color: transparent;
+  color: var(--wa-color-text-normal);
+  font-size: var(--wa-font-size-m, 1rem);
+  line-height: 1;
+  cursor: pointer;
+  /* A fast double tap is two steps; without this the browser may read it as a
+     page zoom instead, and on a phone the whole panel is one slow pinch from
+     unusable. */
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.step-btn:hover {
+  background-color: var(--wa-color-neutral-fill-quiet);
+}
+
+/* Held down, or between the repeat's first step and its release. */
+.step-btn:active,
+.step-btn[data-stepping] {
+  background-color: var(--wa-color-neutral-fill-normal);
+}
+
+.step-btn:focus-visible {
+  outline: 2px solid var(--wa-color-focus, #4f9cf7);
+  outline-offset: 1px;
+}
+
 /* No height here on purpose. A vertical wa-slider's track is a fixed 200px
    whatever the host is sized to (measured — 176px, 300px and 360px all gave a
    200px track), so setting one only adds empty space, and setting one *under*
@@ -445,6 +517,40 @@ tp-clock-control tp-clock {
 }
 
 /* ---------------------------------------------------------------- viewers */
+
+/* The room code, set as a code block rather than a tag: it is meant to be read
+   off this screen and typed on another, so it gets the size and the tracking of
+   something being transcribed, not the size of a status chip. */
+#divRoomCode {
+  display: flex;
+  align-items: center;
+  gap: var(--wa-space-s);
+  padding: 0.45rem 0.6rem;
+  border: 1px dashed var(--wa-color-surface-border, #444);
+  border-radius: var(--wa-border-radius-m, 4px);
+}
+
+.room-code-label {
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-s);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#codeRoom {
+  flex: 1 1 auto;
+  font-family: var(--wa-font-family-code, monospace);
+  font-size: var(--wa-font-size-l);
+  font-weight: var(--wa-font-weight-semibold);
+  letter-spacing: 0.28em;
+}
+
+.room-hint {
+  margin: 0.35rem 0 0.6rem;
+  color: var(--wa-color-text-quiet);
+  font-size: var(--wa-font-size-xs);
+  line-height: 1.45;
+}
 
 #divViewerLink {
   display: flex;
@@ -864,6 +970,14 @@ tp-clock-control {
    their own roving tabindex to fight with. */
 #dlgPalette {
   --width: 32rem;
+}
+
+/* The settings hints are longer in Chinese than in English, and wa-switch's own
+   default leaves no gap between one switch's hint and the next switch's label —
+   readable in English, crowded here. */
+#dlgSettings wa-switch {
+  display: block;
+  margin-block-end: var(--wa-space-m, 1rem);
 }
 
 #dlgPalette #txtPalette {

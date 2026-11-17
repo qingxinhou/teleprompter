@@ -125,7 +125,7 @@ export class ThemeControls {
     // closed menu: on a control page driving a live service, "which layout am
     // I on" has to be answerable without opening anything.
     const layout = this.storage.getLayout();
-    this.#trigger.textContent = `Layout: ${this.storage.layoutName(layout)}`;
+    this.#trigger.textContent = `布局：${this.storage.layoutName(layout)}`;
     const icon = document.createElement("wa-icon");
     icon.setAttribute("slot", "start");
     icon.setAttribute("name", "window-maximize");
@@ -151,13 +151,13 @@ export class ThemeControls {
     item.innerHTML = `${escapeHtml(name)}
       <wa-icon slot="icon" name="palette"></wa-icon>
       <wa-dropdown-item slot="submenu">Apply
-        <wa-icon slot="icon" name="folder-open" label="Apply"></wa-icon>
+        <wa-icon slot="icon" name="folder-open" label="应用"></wa-icon>
       </wa-dropdown-item>
       <wa-dropdown-item slot="submenu">Edit CSS
-        <wa-icon slot="icon" name="code" label="Edit CSS"></wa-icon>
+        <wa-icon slot="icon" name="code" label="编辑 CSS"></wa-icon>
       </wa-dropdown-item>
       <wa-dropdown-item slot="submenu" variant="danger">Delete
-        <wa-icon slot="icon" name="trash" label="Delete"></wa-icon>
+        <wa-icon slot="icon" name="trash" label="删除"></wa-icon>
       </wa-dropdown-item>
     `;
     // The submenu items carry the slug too: wa-select reports the item that
@@ -207,7 +207,7 @@ export class ThemeControls {
     // Created in storage up front rather than held aside: it needs a slug
     // before it can be applied, and applying it is what makes the editing
     // session previewable. Cancel removes it again.
-    const name = `Theme ${this.storage.list().length + 1}`;
+    const name = `布局 ${this.storage.list().length + 1}`;
     const slug = this.storage.create(name, THEME_TEMPLATE);
     this.#renderItems();
     this.#openDialog(slug, true);
@@ -272,7 +272,7 @@ export class ThemeControls {
   }
 
   #name(): string {
-    return (this.#txtName.value ?? "").trim() || "Untitled";
+    return (this.#txtName.value ?? "").trim() || "未命名";
   }
 
   #showProblems(css: string) {

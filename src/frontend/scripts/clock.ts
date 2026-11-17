@@ -80,9 +80,9 @@ class TPClockControl extends HTMLElement {
     // operator has to be able to read which one the fields below belong to
     // without pressing anything.
     this.innerHTML = `
-    <wa-radio-group id="rdoTimerMode" size="s" orientation="horizontal" value="duration" label="Mode">
-    <wa-radio appearance="button" value="duration">Duration</wa-radio>
-    <wa-radio appearance="button" value="target">Time of day</wa-radio>
+    <wa-radio-group id="rdoTimerMode" size="s" orientation="horizontal" value="duration" label="模式">
+    <wa-radio appearance="button" value="duration">时长</wa-radio>
+    <wa-radio appearance="button" value="target">到点</wa-radio>
     </wa-radio-group>
     <div class="wrapper">
     <wa-input id="inHour" type="number" value="00"></wa-input><span>:</span>
@@ -93,15 +93,15 @@ class TPClockControl extends HTMLElement {
     <wa-input id="inTargetTime" type="time" step="1" value="00:00:00"></wa-input>
     </div>
     <div class="timer-transport">
-    <wa-button-group label="Timer">
-		<wa-button id="btnCountdownReset" size="s" appearance="outlined" value="reset" title="Reset">
-    <wa-icon name="clock-rotate-left" label="Reset"></wa-icon>
+    <wa-button-group label="计时">
+		<wa-button id="btnCountdownReset" size="s" appearance="outlined" value="reset" title="重置">
+    <wa-icon name="clock-rotate-left" label="重置"></wa-icon>
     </wa-button>
-		<wa-button id="btnCountdownStart" size="s" appearance="outlined" value="start" title="Start">
-    <wa-icon name="play" label="Start"></wa-icon>
+		<wa-button id="btnCountdownStart" size="s" appearance="outlined" value="start" title="开始">
+    <wa-icon name="play" label="开始"></wa-icon>
     </wa-button>
-		<wa-button id="btnCountdownStop" size="s" appearance="outlined" value="stop" title="Stop">
-    <wa-icon name="stop" label="Stop"></wa-icon>
+		<wa-button id="btnCountdownStop" size="s" appearance="outlined" value="stop" title="暂停">
+    <wa-icon name="stop" label="暂停"></wa-icon>
     </wa-button>
     </wa-button-group>
 		<tp-clock id="timeCountdown" type="timer" timer="00:00:00"></tp-clock>

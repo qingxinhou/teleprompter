@@ -21,6 +21,7 @@ import { brightenPastedHtml } from "./pasteColors.ts";
 import { sectionSizeMenu } from "./sectionSizeMenu.ts";
 import { tidyMenu } from "./tidyMenu.ts";
 import { type TextSizeAccess, textSizeMenu } from "./textSizeMenu.ts";
+import { wordgardZh } from "./wordgardZh.ts";
 
 // The editor pane's height, matching #pdfPane so the two modes occupy the same
 // box — and now literally the same declaration, since both read the token
@@ -70,7 +71,7 @@ const formatting = Menu.Group.define({
  */
 const overflow = Menu.Submenu.define({
   label: { icon: OVERFLOW_ICON },
-  description: "More",
+  description: "更多",
   arrow: false,
   parent: formatting,
   rank: 150,
@@ -149,7 +150,7 @@ const deepHeadingButtons = [4, 5, 6].map((level) =>
   Menu.Button.define({
     run: Command.bind(setTextblockType, Heading.of(level)),
     active: selectionInType(Heading.of(level)),
-    label: `Heading ${level}`,
+    label: `标题 ${level}`,
     enable: (state) => !state.readOnly,
     parent: Menu.Submenu.textblockStyle,
     rank: 52 + (level - 3),
@@ -174,6 +175,11 @@ function buildConfig(
     // Buttons only; the keybindings for these levels come from fullSchema().
     ...deepHeadingButtons,
     history(),
+    // The library's own interface text — bar tooltips, the block-style
+    // dropdown, colour names, the image and table dialogs. Before any of the
+    // menu extensions below, so the phrases are in state by the time a button
+    // asks for its description.
+    ...wordgardZh,
     menuBar({ template: menuTemplate() }),
     // The size control is the operator's own reading size, so it is only
     // offered when the page has a slider to drive — an editor built without
@@ -323,7 +329,7 @@ export function newEditor(
   return createEditor(el, () =>
     Wordgard.create({
       parent: el,
-      doc: `<p>New Document</p>`,
+      doc: `<p>新建稿件</p>`,
       config: buildConfig(onUpdate, textSize, brightenPaste),
     }));
 }

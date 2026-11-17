@@ -9,14 +9,14 @@
 
 /** Palette section headings, in the order the palette shows them. */
 export const COMMAND_GROUPS = [
-  "Scroll",
-  "Text",
-  "Message",
-  "Clocks",
-  "Document",
-  "Layout",
-  "Viewers",
-  "Help",
+  "滚动",
+  "文字",
+  "消息",
+  "时钟",
+  "稿件",
+  "布局",
+  "显示器",
+  "帮助",
 ] as const;
 
 export type CommandGroup = typeof COMMAND_GROUPS[number];

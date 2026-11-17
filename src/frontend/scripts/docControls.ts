@@ -192,14 +192,14 @@ export class DocControls {
     item.value = id;
     item.innerHTML = `${escapeHtml(name)}
       <wa-icon slot="icon" name="file-lines"></wa-icon>
-      <wa-dropdown-item slot="submenu">Open
-        <wa-icon slot="icon" name="folder-open" label="Open"></wa-icon>
+      <wa-dropdown-item slot="submenu">打开
+        <wa-icon slot="icon" name="folder-open" label="打开"></wa-icon>
       </wa-dropdown-item>
-      <wa-dropdown-item slot="submenu">Rename
-        <wa-icon slot="icon" name="pencil" label="Rename"></wa-icon>
+      <wa-dropdown-item slot="submenu">重命名
+        <wa-icon slot="icon" name="pencil" label="重命名"></wa-icon>
       </wa-dropdown-item>
-      <wa-dropdown-item slot="submenu" variant="danger">Delete
-        <wa-icon slot="icon" name="trash" label="Delete"></wa-icon>
+      <wa-dropdown-item slot="submenu" variant="danger">删除
+        <wa-icon slot="icon" name="trash" label="删除"></wa-icon>
       </wa-dropdown-item>
     `;
     // Set as a property, not in the innerHTML template: an id in an attribute
@@ -270,7 +270,7 @@ export class DocControls {
     hidden.value = id;
     // Say which one. textContent, so a name is never parsed as markup.
     const body = this.#dlgDelete.querySelector("#pDeleteDoc")!;
-    body.textContent = `Delete "${doc.name}"? This cannot be undone.`;
+    body.textContent = `删除「${doc.name}」？删除后无法恢复。`;
     this.#dlgDelete.open = true;
   }
 

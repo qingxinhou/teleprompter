@@ -193,11 +193,11 @@ export const PAD_BINDINGS: Record<PadButton, string> = {
 
 /** How each bound button is named in the palette. */
 export const PAD_LABELS: Record<PadButton, string> = {
-  cross: "Cross",
+  cross: "×键",
   r1: "R1",
   l1: "L1",
-  dpadUp: "D-pad up",
-  dpadDown: "D-pad down",
+  dpadUp: "十字上",
+  dpadDown: "十字下",
 };
 
 /**

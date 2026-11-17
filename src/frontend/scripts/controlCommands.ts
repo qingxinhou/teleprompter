@@ -85,8 +85,8 @@ const EDITOR_STEP = 2;
 export const COMMAND_SPECS: CommandSpec[] = [
   {
     id: "scroll.toggle",
-    label: "Start / stop scrolling",
-    group: "Scroll",
+    label: "开始 / 暂停滚动",
+    group: "滚动",
     shortcut: "Space",
     keywords: ["play", "pause", "resume"],
   },
@@ -97,29 +97,29 @@ export const COMMAND_SPECS: CommandSpec[] = [
     // "faster" also steps the thumb downward. The two agree by coincidence of
     // metaphor, not by construction; the sign lives in the action below.
     id: "speed.up",
-    label: "Scroll faster",
-    group: "Scroll",
+    label: "加快滚动",
+    group: "滚动",
     shortcut: "Mod+ArrowDown",
     repeatable: true,
   },
   {
     id: "speed.down",
-    label: "Scroll slower",
-    group: "Scroll",
+    label: "减慢滚动",
+    group: "滚动",
     shortcut: "Mod+ArrowUp",
     repeatable: true,
   },
   {
     id: "speed.up.large",
-    label: "Scroll faster (large step)",
-    group: "Scroll",
+    label: "加快滚动（大步）",
+    group: "滚动",
     shortcut: "Mod+Shift+ArrowDown",
     repeatable: true,
   },
   {
     id: "speed.down.large",
-    label: "Scroll slower (large step)",
-    group: "Scroll",
+    label: "减慢滚动（大步）",
+    group: "滚动",
     shortcut: "Mod+Shift+ArrowUp",
     repeatable: true,
   },
@@ -128,8 +128,8 @@ export const COMMAND_SPECS: CommandSpec[] = [
     // what the operator wants when the next cue is a jump rather than a
     // resume.
     id: "speed.zero",
-    label: "Set scroll speed to zero",
-    group: "Scroll",
+    label: "滚动速度归零",
+    group: "滚动",
     shortcut: "Mod+Alt+Digit0",
     keywords: ["stop", "halt", "still"],
   },
@@ -137,30 +137,30 @@ export const COMMAND_SPECS: CommandSpec[] = [
     // The operator's pane reads ahead of the viewers on purpose, so these two
     // are how the gap gets closed deliberately in either direction.
     id: "position.get",
-    label: "Go to viewers' position",
-    group: "Scroll",
+    label: "跳到显示器位置",
+    group: "滚动",
     shortcut: "Mod+Alt+KeyG",
     keywords: ["jump", "catch up", "where", "sync"],
   },
   {
     id: "position.send",
-    label: "Send my position to viewers",
-    group: "Scroll",
+    label: "把我的位置发给显示器",
+    group: "滚动",
     shortcut: "Mod+Alt+KeyJ",
     keywords: ["jump", "cue", "skip", "sync"],
   },
   {
     id: "scale.up",
-    label: "Bigger text",
-    group: "Text",
+    label: "放大显示器字号",
+    group: "文字",
     shortcut: "Mod+Alt+Equal",
     keywords: ["zoom", "larger", "scale"],
     repeatable: true,
   },
   {
     id: "scale.down",
-    label: "Smaller text",
-    group: "Text",
+    label: "缩小显示器字号",
+    group: "文字",
     shortcut: "Mod+Alt+Minus",
     keywords: ["zoom", "scale"],
     repeatable: true,
@@ -170,22 +170,22 @@ export const COMMAND_SPECS: CommandSpec[] = [
     // service, not things reached for mid-scroll, and the chord set is already
     // long enough to have to be looked up.
     id: "scale.match",
-    label: "Match viewers' text size",
-    group: "Text",
+    label: "跟随显示器字号",
+    group: "文字",
     keywords: ["sync", "size", "font", "same"],
   },
   {
     id: "scale.send",
-    label: "Send my text size to viewers",
-    group: "Text",
+    label: "把我的字号发给显示器",
+    group: "文字",
     keywords: ["sync", "size", "font", "push"],
   },
   {
     // The operator's own pane, not the viewers': same group because "Text" is
     // where an operator looks for a size, and the labels say whose text it is.
     id: "editor.up",
-    label: "Bigger editor text",
-    group: "Text",
+    label: "放大编辑区字号",
+    group: "文字",
     // Mod+Alt+Equal/Minus are the viewers' size; the brackets are free.
     // Physical key names, as anything carrying Alt must be.
     shortcut: "Mod+Alt+BracketRight",
@@ -194,8 +194,8 @@ export const COMMAND_SPECS: CommandSpec[] = [
   },
   {
     id: "editor.down",
-    label: "Smaller editor text",
-    group: "Text",
+    label: "缩小编辑区字号",
+    group: "文字",
     shortcut: "Mod+Alt+BracketLeft",
     keywords: ["zoom", "script", "mine", "editor"],
     repeatable: true,
@@ -204,8 +204,8 @@ export const COMMAND_SPECS: CommandSpec[] = [
     // Whether the preview is a scrub surface. In "Scroll" because that is what
     // it moves, and it is the operator's answer to "put them on this line".
     id: "preview.scrub",
-    label: "Scroll the show from the preview on / off",
-    group: "Scroll",
+    label: "预览区滚动全场 开 / 关",
+    group: "滚动",
     shortcut: "Mod+Alt+KeyS",
     keywords: ["preview", "scrub", "drag", "wheel", "audience", "displays"],
   },
@@ -213,28 +213,28 @@ export const COMMAND_SPECS: CommandSpec[] = [
     // No shortcut: a right-click on a slider is the gesture, and this is how an
     // operator finds out that it exists.
     id: "transport.reset",
-    label: "Reset sliders to defaults",
-    group: "Scroll",
+    label: "滑块恢复默认值",
+    group: "滚动",
     keywords: ["default", "zero", "slider", "speed", "size"],
   },
   {
     // The one binding that earns its keep most: type the message, send it
     // without reaching for the mouse.
     id: "message.send",
-    label: "Send message",
-    group: "Message",
+    label: "发送消息",
+    group: "消息",
     shortcut: "Mod+Enter",
     allowWhileTyping: true,
   },
   {
     id: "message.clear",
-    label: "Clear message",
-    group: "Message",
+    label: "清空消息",
+    group: "消息",
     keywords: ["blank", "remove"],
   },
-  { id: "clock.start", label: "Start countdown", group: "Clocks" },
-  { id: "clock.stop", label: "Stop countdown", group: "Clocks" },
-  { id: "clock.reset", label: "Reset countdown", group: "Clocks" },
+  { id: "clock.start", label: "开始倒计时", group: "时钟" },
+  { id: "clock.stop", label: "暂停倒计时", group: "时钟" },
+  { id: "clock.reset", label: "重置倒计时", group: "时钟" },
   {
     // Ctrl+Alt+C rather than a bare Alt+C: bare Alt+letter opens the browser's
     // own menus on Windows and Linux and inserts a character on macOS, where
@@ -243,8 +243,8 @@ export const COMMAND_SPECS: CommandSpec[] = [
     // also the family the rest of this table uses, and what Google Docs picked
     // for its own colour shortcut.
     id: "colour.pick",
-    label: "Text colour…",
-    group: "Text",
+    label: "文字颜色…",
+    group: "文字",
     shortcut: "Mod+Alt+KeyC",
     keywords: ["color", "palette", "highlight", "red", "yellow", "swatch"],
     // Every colour command is reached mid-sentence from the editor. Suppressed
@@ -257,32 +257,32 @@ export const COMMAND_SPECS: CommandSpec[] = [
     // colour with Ctrl+Shift+H, Google Docs highlights with Ctrl+Alt+H. H for
     // the same reason both of them chose it.
     id: "colour.repeat",
-    label: "Repeat last colour",
-    group: "Text",
+    label: "重复上次颜色",
+    group: "文字",
     shortcut: "Mod+Alt+KeyH",
     keywords: ["color", "again", "same", "last"],
     allowWhileTyping: true,
   },
   {
     id: "colour.yellow",
-    label: "Colour: yellow",
-    group: "Text",
+    label: "颜色：黄色",
+    group: "文字",
     shortcut: "Mod+Alt+KeyY",
     keywords: ["color", "cue", "emphasis"],
     allowWhileTyping: true,
   },
   {
     id: "colour.red",
-    label: "Colour: red",
-    group: "Text",
+    label: "颜色：红色",
+    group: "文字",
     shortcut: "Mod+Alt+KeyR",
     keywords: ["color", "warning"],
     allowWhileTyping: true,
   },
   {
     id: "colour.blue",
-    label: "Colour: blue",
-    group: "Text",
+    label: "颜色：蓝色",
+    group: "文字",
     shortcut: "Mod+Alt+KeyB",
     keywords: ["color", "speaker"],
     allowWhileTyping: true,
@@ -291,20 +291,20 @@ export const COMMAND_SPECS: CommandSpec[] = [
     // Not "white": clearing the mark lets the run inherit --viewer-color, so
     // it follows a user theme. See colours.ts.
     id: "colour.none",
-    label: "Colour: default",
-    group: "Text",
+    label: "颜色：默认",
+    group: "文字",
     shortcut: "Mod+Alt+KeyN",
     keywords: ["color", "clear", "none", "remove", "plain"],
     allowWhileTyping: true,
   },
-  { id: "document.new", label: "New document", group: "Document" },
-  { id: "pdf.close", label: "Close PDF", group: "Document" },
+  { id: "document.new", label: "新建稿件", group: "稿件" },
+  { id: "pdf.close", label: "关闭 PDF", group: "稿件" },
   {
     // Whether the script travels as it is typed. In "Document" rather than
     // "Text", which is about how big the words are, not which words.
     id: "content.live",
-    label: "Live editing on / off",
-    group: "Document",
+    label: "实时编辑 开 / 关",
+    group: "稿件",
     shortcut: "Mod+Alt+KeyL",
     keywords: ["hold", "freeze", "draft", "audience", "displays"],
     // Both of these are reached *from* the editor, with the cursor in the
@@ -316,44 +316,44 @@ export const COMMAND_SPECS: CommandSpec[] = [
   },
   {
     id: "content.push",
-    label: "Send my script to viewers",
-    group: "Document",
+    label: "把稿件发给显示器",
+    group: "稿件",
     shortcut: "Mod+Alt+KeyU",
     keywords: ["update", "go live", "push", "audience", "displays"],
     allowWhileTyping: true,
   },
   {
     id: "viewer.pop",
-    label: "Open / close the local screen",
-    group: "Viewers",
+    label: "打开 / 关闭本机显示",
+    group: "显示器",
     shortcut: "Mod+Alt+KeyP",
     keywords: ["popup", "screen", "display", "close", "fullscreen"],
   },
   {
     id: "viewer.copyLink",
-    label: "Copy viewer link",
-    group: "Viewers",
+    label: "复制显示器链接",
+    group: "显示器",
     keywords: ["share", "url"],
   },
   {
     // Reachable from the palette as well as the app bar, because an operator
     // whose scroll direction is backwards is already reaching for the keyboard.
     id: "settings.open",
-    label: "Settings",
-    group: "Help",
+    label: "设置",
+    group: "帮助",
     keywords: ["preferences", "options", "scroll", "wheel", "invert"],
   },
   {
     id: "palette.open",
-    label: "Command palette",
-    group: "Help",
+    label: "命令面板",
+    group: "帮助",
     shortcut: "Mod+K",
     allowWhileTyping: true,
   },
   {
     id: "help.shortcuts",
-    label: "Keyboard shortcuts",
-    group: "Help",
+    label: "键盘快捷键",
+    group: "帮助",
     shortcut: "Mod+/",
     keywords: ["cheatsheet", "keys", "help"],
     allowWhileTyping: true,
@@ -397,9 +397,9 @@ export function documentCommands(host: DocumentHost): Command[] {
     id: `document.open.${id}`,
     // Prefixed so the whole set is reachable by typing "open", and so a
     // document called "Scroll faster" can't be mistaken for the command.
-    label: `Open: ${doc.name}`,
-    group: "Document",
-    hint: id === current ? "open" : undefined,
+    label: `打开：${doc.name}`,
+    group: "稿件",
+    hint: id === current ? "当前" : undefined,
     keywords: ["document", "script"],
     run: () => host.load(id),
   }));
@@ -410,9 +410,9 @@ export function layoutCommands(host: LayoutHost): Command[] {
   const current = host.storage.getLayout();
   return host.storage.layouts().map(([layout, name]): Command => ({
     id: `layout.apply.${layout}`,
-    label: `Layout: ${name}`,
-    group: "Layout",
-    hint: layout === current ? "current" : undefined,
+    label: `布局：${name}`,
+    group: "布局",
+    hint: layout === current ? "当前" : undefined,
     keywords: ["theme", "viewer"],
     run: () => host.apply(layout),
   }));
@@ -550,7 +550,7 @@ export function colourCommands(host: CommandHost): Command[] {
   return SCRIPT_COLOURS.map((colour) => ({
     id: `colour.pick.${colour.id}`,
     label: colour.name,
-    group: "Text" as const,
+    group: "文字" as const,
     keywords: colourSearchText(colour).split(" "),
     // The chip is the point of a colour row; see Command.swatch.
     swatch: colour.hex,

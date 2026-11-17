@@ -118,7 +118,7 @@ export function textSizeMenu(
       slider.max = `${access.max}`;
       slider.step = `${access.step}`;
       slider.value = `${access.get()}`;
-      slider.setAttribute("aria-label", "Editor text size");
+      slider.setAttribute("aria-label", "编辑区字号");
 
       const readout = document.createElement("span");
       readout.className = "wg-text-size-readout";
@@ -186,7 +186,7 @@ export function textSizeMenu(
 
   const button = Menu.Submenu.define({
     label: { icon: ICON },
-    description: "Editor text size",
+    description: "编辑区字号",
     arrow: false,
     // The group is passed in rather than named here: editor.ts owns the bar's
     // layout, and taking it as an argument is what keeps this module from

@@ -59,3 +59,27 @@ export function randomID(source: RandomSource = crypto): string {
     hex.slice(20),
   ].join("-");
 }
+
+/**
+ * Six digits for a room.
+ *
+ * The room id is the one id here a person reads off one screen and types into
+ * another — often across a room, often on a phone — so the alphabet matters
+ * more than the entropy does. `randomID().slice(0, 8)` gave eight characters
+ * drawn from `0-9a-f`: fine to paste, awkward to say ("nine one one nine two
+ * oh dee one") and easy to mistype where `0` and `o` look alike.
+ *
+ * Six digits read aloud in pairs and land on a phone's numeric keypad. The
+ * leading digit is forced to 1-9 so the code is never five digits with a
+ * leading zero, which is the one shape that gets dropped when written down.
+ *
+ * 900,000 rooms: a collision needs two controllers to draw the same code, and
+ * the signalling hub already refuses a second controller in a room, so a clash
+ * is a visible error rather than a silent cross-talk.
+ */
+export function roomCode(source: RandomSource = crypto): string {
+  const bytes = source.getRandomValues(new Uint8Array(4));
+  const n = ((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) |
+    bytes[3]) >>> 0;
+  return String(100000 + (n % 900000));
+}

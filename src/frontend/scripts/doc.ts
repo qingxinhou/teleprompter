@@ -69,7 +69,7 @@ export function formatDateTime(d: Date = new Date()): string {
 }
 
 export function newDocName(d?: Date): string {
-  return `document_${formatDateTime(d)}`;
+  return `稿件_${formatDateTime(d)}`;
 }
 
 /**

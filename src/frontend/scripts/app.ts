@@ -16,7 +16,7 @@ try {
   const bar = document.querySelector("#appBar");
   const note = document.createElement("div");
   note.id = "divStartupError";
-  note.textContent = `This page could not start: ${
+  note.textContent = `页面无法启动：${
     err instanceof Error ? err.message : err
   }`;
   bar?.after(note);

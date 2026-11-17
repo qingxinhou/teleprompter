@@ -26,7 +26,7 @@ import { PAD_BINDINGS, PAD_LABELS, type PadButton } from "./gamepad.ts";
 function cmd(spec: Partial<Command> & { label: string }): Command {
   return {
     id: spec.id ?? spec.label.toLowerCase().replaceAll(" ", "."),
-    group: spec.group ?? "Scroll",
+    group: spec.group ?? "滚动",
     run: spec.run ?? (() => {}),
     ...spec,
   };
@@ -122,9 +122,9 @@ Deno.test("a bare key carries no modifier and a chord does", () => {
 
 Deno.test("an empty query lists every command in group order", () => {
   const commands = [
-    cmd({ label: "Second", group: "Text" }),
-    cmd({ label: "First", group: "Scroll" }),
-    cmd({ label: "Third", group: "Help" }),
+    cmd({ label: "Second", group: "文字" }),
+    cmd({ label: "First", group: "滚动" }),
+    cmd({ label: "Third", group: "帮助" }),
   ];
   assertEquals(
     filterCommands(commands, "").map((c) => c.label),
@@ -155,7 +155,7 @@ Deno.test("a closer match to the label ranks higher", () => {
 Deno.test("searching is case-insensitive and covers keywords and groups", () => {
   const commands = [
     cmd({ label: "Start / stop scrolling", keywords: ["play", "pause"] }),
-    cmd({ label: "Send message", group: "Message" }),
+    cmd({ label: "Send message", group: "消息" }),
   ];
   assertEquals(filterCommands(commands, "SCROLL").length, 1);
   assertEquals(
@@ -194,17 +194,17 @@ Deno.test("a table with nothing wrong with it reports no problems", () => {
     {
       id: "scroll.toggle",
       label: "Start / stop",
-      group: "Scroll",
+      group: "滚动",
       shortcut: "Space",
     },
     {
       id: "palette.open",
       label: "Commands",
-      group: "Help",
+      group: "帮助",
       shortcut: "Mod+K",
       allowWhileTyping: true,
     },
-    { id: "pdf.close", label: "Close PDF", group: "Document" },
+    { id: "pdf.close", label: "Close PDF", group: "稿件" },
   ];
   assertEquals(validateCommands(specs), []);
 });
@@ -216,10 +216,10 @@ Deno.test("two commands cannot claim the same binding", () => {
     {
       id: "speed.up",
       label: "Faster",
-      group: "Scroll",
+      group: "滚动",
       shortcut: "Mod+ArrowUp",
     },
-    { id: "scale.up", label: "Bigger", group: "Text", shortcut: "Mod+ArrowUp" },
+    { id: "scale.up", label: "Bigger", group: "文字", shortcut: "Mod+ArrowUp" },
   ]);
   assertEquals(problems.length, 1);
   assert(problems[0].includes("scale.up"));
@@ -228,23 +228,23 @@ Deno.test("two commands cannot claim the same binding", () => {
 
 Deno.test("the same chord written two ways is still one binding", () => {
   const problems = validateCommands([
-    { id: "a", label: "A", group: "Scroll", shortcut: "Mod+Alt+Digit0" },
-    { id: "b", label: "B", group: "Scroll", shortcut: "Alt+Mod+Digit0" },
+    { id: "a", label: "A", group: "滚动", shortcut: "Mod+Alt+Digit0" },
+    { id: "b", label: "B", group: "滚动", shortcut: "Alt+Mod+Digit0" },
   ]);
   assertEquals(problems.length, 1);
 });
 
 Deno.test("a duplicate id is reported", () => {
   const problems = validateCommands([
-    { id: "speed.up", label: "Faster", group: "Scroll" },
-    { id: "speed.up", label: "Also faster", group: "Scroll" },
+    { id: "speed.up", label: "Faster", group: "滚动" },
+    { id: "speed.up", label: "Also faster", group: "滚动" },
   ]);
   assertEquals(problems, ["duplicate id speed.up"]);
 });
 
 Deno.test("an unparseable shortcut is reported against its command", () => {
   const problems = validateCommands([
-    { id: "speed.up", label: "Faster", group: "Scroll", shortcut: "Mod+" },
+    { id: "speed.up", label: "Faster", group: "滚动", shortcut: "Mod+" },
   ]);
   assertEquals(problems.length, 1);
   assert(problems[0].includes("speed.up"));
@@ -265,7 +265,7 @@ Deno.test("a bare key may not fire while the operator is typing", () => {
     {
       id: "scroll.toggle",
       label: "Start / stop",
-      group: "Scroll",
+      group: "滚动",
       shortcut: "Space",
       allowWhileTyping: true,
     },
@@ -279,7 +279,7 @@ Deno.test("a palette-only command may not claim to fire while typing", () => {
     {
       id: "pdf.close",
       label: "Close PDF",
-      group: "Document",
+      group: "稿件",
       allowWhileTyping: true,
     },
   ]);
@@ -325,8 +325,8 @@ Deno.test("two commands cannot claim the same controller button", () => {
   // pad dispatches one command per button, so the second would never fire.
   const specs = applyPadBindings(
     [
-      { id: "a", label: "A", group: "Scroll" },
-      { id: "b", label: "B", group: "Scroll" },
+      { id: "a", label: "A", group: "滚动" },
+      { id: "b", label: "B", group: "滚动" },
     ],
     { r1: "a", l1: "b" },
     { r1: "R1", l1: "R1" },
@@ -340,7 +340,7 @@ Deno.test("a button bound to nothing stamps nothing", () => {
   // applyPadBindings is fed the whole table, so a binding for a command that
   // isn't in it must be dropped rather than invented as a row.
   const specs = applyPadBindings(
-    [{ id: "a", label: "A", group: "Scroll" }],
+    [{ id: "a", label: "A", group: "滚动" }],
     { r1: "missing" },
     { r1: "R1" },
   );
@@ -552,8 +552,8 @@ function fakeLayoutHost(current = "theme-default") {
 Deno.test("there is one open command per stored document", () => {
   const commands = documentCommands(fakeDocHost());
   assertEquals(commands.map((c) => c.label), [
-    "Open: Sunday morning",
-    "Open: Notices",
+    "打开：Sunday morning",
+    "打开：Notices",
   ]);
   assertEquals(commands.map((c) => c.id), [
     "document.open.a",
@@ -563,28 +563,28 @@ Deno.test("there is one open command per stored document", () => {
 
 Deno.test("the document already in the editor is marked", () => {
   const commands = documentCommands(fakeDocHost("b"));
-  assertEquals(commands.map((c) => c.hint), [undefined, "open"]);
+  assertEquals(commands.map((c) => c.hint), [undefined, "当前"]);
 });
 
 Deno.test("running a document command loads that document", () => {
   const host = fakeDocHost();
-  documentCommands(host).find((c) => c.label === "Open: Notices")!.run();
+  documentCommands(host).find((c) => c.label === "打开：Notices")!.run();
   assertEquals(host.loaded, ["b"]);
 });
 
 Deno.test("layouts cover the built-ins and the user's own", () => {
   const commands = layoutCommands(fakeLayoutHost());
   assertEquals(commands.map((c) => c.label), [
-    "Layout: Clocks & Text",
-    "Layout: Big Clocks",
-    "Layout: Mine",
+    "布局：Clocks & Text",
+    "布局：Big Clocks",
+    "布局：Mine",
   ]);
-  assertEquals(commands.map((c) => c.hint), ["current", undefined, undefined]);
+  assertEquals(commands.map((c) => c.hint), ["当前", undefined, undefined]);
 });
 
 Deno.test("running a layout command wears that layout", () => {
   const host = fakeLayoutHost();
-  layoutCommands(host).find((c) => c.label === "Layout: Mine")!.run();
+  layoutCommands(host).find((c) => c.label === "布局：Mine")!.run();
   assertEquals(host.applied, ["theme-user-mine"]);
 });
 
@@ -667,7 +667,7 @@ Deno.test("every colour is reachable from the picker, and only from it", () => {
   // that is bound on the spec, not here.
   assert(rows.every((r) => !r.shortcut));
 
-  rows.find((r) => r.label === "Magenta")!.run();
+  rows.find((r) => r.label === "品红")!.run();
   assertEquals(host.clicked, ["colour:magenta"]);
 });
 

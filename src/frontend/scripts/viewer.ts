@@ -45,6 +45,9 @@ import "../styles/viewerThemes.css";
 export class Viewer {
   root = <HTMLHtmlElement> document.querySelector(":root")!;
   spanMessage = <HTMLSpanElement> document.querySelector("#message")!;
+  /** The pill that hands this window back to the control page. Null in the
+   *  preview iframe, which has no end of its own to switch from. */
+  #switchEnd = <HTMLAnchorElement | null> document.querySelector("#switchEnd");
   timer: TPClock;
   messageMin = 10;
   messageMax = 75;
@@ -148,7 +151,15 @@ export class Viewer {
     const room = new URLSearchParams(location.search).get("room");
     if (!room) {
       if (globalThis.self === globalThis.top) {
-        throw new Error("missing ?room= on standalone viewer page");
+        // A display that was opened without a room — someone typed the
+        // /viewer address on a phone, or followed a link that lost its query.
+        // Throwing here left a blank black screen with the reason only in the
+        // console, which reads as "the app is broken" on a screen across the
+        // room. Ask for the code the control page is showing instead: the room
+        // id is short enough to retype, and this is the whole point of making
+        // it short.
+        this.#renderRoomEntry();
+        return;
       }
       this.isPreviewer = true;
       globalThis.addEventListener("message", (e: MessageEvent) => {
@@ -192,6 +203,7 @@ export class Viewer {
     self.addEventListener("resize", this.#listenResize.bind(this));
     this.#listenZoomGestures();
     this.#detectLocal();
+    this.#wireEndSwitch(room);
     // The manual way in and out, for a display reached by link or QR code —
     // and the fallback for a local screen whose browser ignored the
     // `fullscreen` window feature. Caught, not awaited: a rejected
@@ -206,6 +218,211 @@ export class Viewer {
 
     this.#reportDims();
     this.startSmoothScroll();
+  }
+
+  /**
+   * The way in for a display that arrived without a room in its URL.
+   *
+   * Replaces the stage rather than sitting inside it: nothing on this screen is
+   * scrollable or syncable yet, and leaving the clocks header up would suggest
+   * a session that does not exist. The code it asks for is the short one the
+   * control page shows, which is why that id is short — a display across the
+   * room can be set up by reading six digits out loud.
+   */
+  #renderRoomEntry() {
+    this.#stage.innerHTML = `
+      <section class="room-entry">
+        <h1>提词显示器</h1>
+        <p>输入控制台上显示的房间号。</p>
+        <form id="roomEntryForm" autocomplete="off">
+          <input id="roomEntryInput" type="text" inputmode="text"
+                 autocomplete="off" spellcheck="false" autocapitalize="characters"
+                 maxlength="16" placeholder="房间号" aria-label="房间号">
+          <button type="submit">加入</button>
+        </form>
+        <p id="roomEntryError" class="room-entry-error" hidden></p>
+        <!-- The other way out of this screen. Someone who opened /viewer by
+             hand is more often the operator than the talent, and the control
+             page is where the room code they are about to need comes from —
+             so this is a link rather than a sentence telling them to go and
+             type the address. -->
+        <a class="room-entry-switch" href="/control">打开控制台</a>
+      </section>`;
+
+    // Injected here rather than in viewerBase.css: that file is the floor every
+    // *session* display stands on, and this screen is the one case where there
+    // is no session. Keeping the rules with the markup also keeps a user theme
+    // from having to know about a page its layouts never see.
+    const style = document.createElement("style");
+    style.textContent = `
+      .room-entry {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 0.9rem;
+        padding: 2rem;
+        color: #fff;
+        background: #000;
+        text-align: center;
+        font-family: ui-sans-serif, system-ui, sans-serif;
+      }
+      .room-entry h1 {
+        margin: 0;
+        font-size: clamp(1.5rem, 4vw, 2.4rem);
+        font-weight: 600;
+      }
+      .room-entry p {
+        margin: 0;
+        max-width: 22rem;
+        color: #9aa0a6;
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+      .room-entry form {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.6rem;
+        margin-top: 0.6rem;
+      }
+      .room-entry input {
+        width: min(15rem, 62vw);
+        padding: 0.75rem 1rem;
+        color: #fff;
+        background: #111;
+        border: 1px solid #333;
+        border-radius: 0.4rem;
+        outline: none;
+        font-family: ui-monospace, monospace;
+        font-size: 1.35rem;
+        font-weight: 600;
+        letter-spacing: 0.3em;
+        text-align: center;
+      }
+      .room-entry input:focus { border-color: #4f9cf7; }
+      /* The tracking that makes a code easy to transcribe turns the
+         placeholder into letterspaced soup; it is a label, not a code. */
+      .room-entry input::placeholder {
+        font-size: 1rem;
+        font-weight: 400;
+        letter-spacing: 0.02em;
+        color: #6b7075;
+      }
+      .room-entry button {
+        padding: 0.75rem 1.4rem;
+        color: #08131f;
+        background: #4f9cf7;
+        border: 0;
+        border-radius: 0.4rem;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+      .room-entry button:hover { filter: brightness(1.08); }
+      .room-entry-error { color: #ff6b6b !important; font-size: 0.9rem !important; }
+      .room-entry-switch {
+        color: #9aa0a6;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border-bottom: 1px solid #3a3f44;
+        padding-bottom: 1px;
+      }
+      .room-entry-switch:hover { color: #fff; border-bottom-color: #9aa0a6; }
+    `;
+    document.head.appendChild(style);
+
+    const form = <HTMLFormElement> this.#stage.querySelector("#roomEntryForm");
+    const input = <HTMLInputElement> this.#stage.querySelector("#roomEntryInput");
+    const error = <HTMLElement> this.#stage.querySelector("#roomEntryError");
+
+    input.focus();
+    input.addEventListener("input", () => {
+      error.hidden = true;
+    });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      // Spaces are stripped rather than rejected: a code read off a screen gets
+      // copied with them ("482 913") more often than not.
+      const code = input.value.trim().replace(/\s+/g, "");
+      if (!code) {
+        error.textContent = "请先输入房间号。";
+        error.hidden = false;
+        input.focus();
+        return;
+      }
+      location.href = `/viewer?room=${encodeURIComponent(code)}`;
+    });
+  }
+
+  /**
+   * The way back to the operator's end, and the only chrome a session display
+   * has.
+   *
+   * It shows on any pointer activity and leaves three seconds after the last
+   * one. A display is left running in front of whoever is being filmed, so a
+   * button that is always there is a button in the shot; one that never
+   * appears would be a URL to go and type on a screen that may be across the
+   * room. Waking on a pointer move rather than on hover also covers the touch
+   * screen this is often driven from, where there is no hover at all.
+   *
+   * It navigates in this tab rather than opening one, because the two ends are
+   * two roles of one window — the control page's Viewer button is the same trip
+   * in the other direction, and a second tab would mean two controllers for the
+   * room. The room travels in the URL so the control page reclaims this room
+   * rather than minting a new one on arrival.
+   *
+   * Not wired in the preview iframe: it returns before this is called, so the
+   * pill stays as the markup left it — hidden.
+   */
+  #wireEndSwitch(room: string) {
+    const link = this.#switchEnd;
+    if (!link) return;
+    link.href = `/control?room=${encodeURIComponent(room)}`;
+    link.hidden = false;
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const sleep = () => {
+      timer = setTimeout(() => delete link.dataset.awake, 3000);
+    };
+    const wake = () => {
+      link.dataset.awake = "";
+      clearTimeout(timer);
+      sleep();
+    };
+    // True while the press in progress is the one that revealed the pill, so
+    // the click it is followed by can be swallowed — see the click handler.
+    let revealing = false;
+    // A mouse reveals it on the way past; a finger reveals it on the tap. The
+    // asymmetry is not fussiness: a touch screen can deliver a `pointermove`
+    // at the moment the finger lands, which would make the pill live under the
+    // very tap that woke it. Touch wakes on `pointerdown` instead.
+    self.addEventListener("pointermove", (e: PointerEvent) => {
+      if (e.pointerType === "mouse") wake();
+    }, { passive: true });
+    self.addEventListener("pointerdown", (e: PointerEvent) => {
+      revealing = !link.hasAttribute("data-awake") && e.pointerType !== "mouse";
+      wake();
+    }, { passive: true });
+    self.addEventListener("keydown", wake, { passive: true });
+    // Chrome follows a tap with compatibility mouse events, and those are
+    // hit-tested *after* the touch has already made the pill clickable — so
+    // without this the single tap that reveals it would also follow it, and
+    // the bottom corner of every display would be a live link to the control
+    // page. Swallowed once, for that press only: a second tap is the operator
+    // asking for it, however soon it comes.
+    link.addEventListener("click", (e) => {
+      if (!revealing) return;
+      revealing = false;
+      e.preventDefault();
+    });
+    // Held awake while the pointer is on it: the way to the corner it sits in
+    // crosses the bottom of the screen, and a pill that starts fading as it is
+    // aimed at cannot be hit.
+    link.addEventListener("pointerenter", () => clearTimeout(timer));
+    link.addEventListener("pointerleave", sleep);
+    sleep();
   }
 
   #handleControl(msg: ControlMessage) {

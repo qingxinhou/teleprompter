@@ -41,8 +41,8 @@ export const BUILTIN_LAYOUTS: readonly string[] = [
  * months.
  */
 export const BUILTIN_LAYOUT_NAMES: Record<string, string> = {
-  [DEFAULT_LAYOUT]: "Clocks & Text",
-  "theme-big-clock": "Big Clocks",
+  [DEFAULT_LAYOUT]: "时钟与文字",
+  "theme-big-clock": "大时钟",
 };
 
 // Every user theme's class name starts here. Two things depend on it: a user
@@ -140,9 +140,8 @@ export function findThemeCssProblems(source: string): string[] {
 
   if (/(?:^|[;}\s])@import\b/.test(css)) {
     problems.push(
-      "@import will be dropped without applying: a theme is installed as an " +
-        "adopted stylesheet, which has no base URL to resolve one against. " +
-        "Paste the imported rules in instead.",
+      "@import 会被丢弃且不生效：布局是以 adopted stylesheet 形式装入的，" +
+        "没有基准 URL 可供解析。请把被导入的规则直接粘贴进来。",
     );
   }
 
@@ -154,10 +153,9 @@ export function findThemeCssProblems(source: string): string[] {
   for (const block of ruleBlocksFor(css, ".pdf-page")) {
     if (HEIGHT_PROPS.test(block)) {
       problems.push(
-        "This theme changes the height of .pdf-page. Page boxes are sized in " +
-          "pixels by pdfview.ts to keep the PDF column proportional; altering " +
-          "the height silently drifts viewers of different sizes apart. Style " +
-          "its color or border-radius, not its height or spacing.",
+        "这段样式改动了 .pdf-page 的高度。PDF 页框由 pdfview.ts 以像素定尺，" +
+          "以保证整列比例一致；改高度会让不同尺寸的显示器在无声无息中错位。" +
+          "请改颜色或圆角，不要改高度和间距。",
       );
       break;
     }
@@ -171,11 +169,9 @@ export function findThemeCssProblems(source: string): string[] {
   // `overflow: visible` are not mistaken for one.
   if (/\b\d*\.?\d+(?:vh|vw|vi|vb|vmin|vmax|dvh|dvw|svh|lvh)\b/.test(css)) {
     problems.push(
-      "This theme sizes something in viewport units. A layout is laid out in " +
-        "the stage — the reference display's box, scaled to fit each screen — " +
-        "so a viewport unit is a different size on every display and they " +
-        "drift apart on the same scroll position. Use container units instead: " +
-        "cqi, cqw and cqh measure the stage.",
+      "这段样式用了视口单位。布局是在 stage 里排版的——stage 是参考显示器的" +
+        "尺寸，再按屏幕缩放——所以视口单位在每块屏上大小不同，同一个滚动位置" +
+        "会错开。请改用容器单位：cqi、cqw、cqh 度量的是 stage。",
     );
   }
 

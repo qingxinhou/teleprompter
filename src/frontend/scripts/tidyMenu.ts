@@ -91,7 +91,7 @@ export function tidyMenu(parent: Menu.Group): GardState.Extension {
   return Menu.Button.define({
     run: tidyDocument,
     label: { icon: ICON },
-    description: "Tidy the script",
+    description: "整理稿件",
     parent,
     // After the size submenu (125) and before the overflow dots (150).
     rank: 130,

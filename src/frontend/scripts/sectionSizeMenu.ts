@@ -158,7 +158,7 @@ const promptForSectionSize: Command = (wg) => {
   const current = Math.round((existing?.value ?? SECTION_SIZE_DEFAULT) * 100);
 
   const { close, result } = Dialog.show(wg, {
-    label: "Text size (%)",
+    label: "字号（%）",
     input: {
       type: "number",
       min: `${SECTION_SIZE_MIN * 100}`,
@@ -167,9 +167,9 @@ const promptForSectionSize: Command = (wg) => {
       value: `${current}`,
       // The presets are round numbers; this box exists for the ones that are
       // not, so it accepts anything in range rather than snapping to the step.
-      "aria-label": "Text size, percent",
+      "aria-label": "字号，百分比",
     },
-    submitLabel: "Set",
+    submitLabel: "应用",
     class: "wg-tp-size-dialog",
     focus: true,
   });
@@ -205,7 +205,7 @@ export function sectionSizeMenu(parent: Menu.Group): GardState.Extension {
     // Short, because this label can end up in the bar: a submenu with no
     // `label` of its own shows whichever child is active, so a 137% run shows
     // this one. "Custom size…" would be truncated at the submenu's width.
-    label: "Other…",
+    label: "自定义…",
     // After the presets, so the common choices stay under the pointer.
     rank: 100,
     enable: (state) => !state.readOnly,

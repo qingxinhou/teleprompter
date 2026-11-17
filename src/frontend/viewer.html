@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="wa-theme-shoelace wa-palette-shoelace wa-brand-blue wa-dark">
+<html lang="zh-CN" class="wa-theme-shoelace wa-palette-shoelace wa-brand-blue wa-dark">
 
 <head>
   <meta charset="UTF-8">
@@ -8,7 +8,7 @@
        /favicon.ico as it loads, which is noise in the one console an operator
        looks at when a screen misbehaves. -->
   <link rel="icon" href="/icons/tv-solid-full.svg" type="image/svg+xml">
-  <title>Viewer</title>
+  <title>提词显示器</title>
   <script type="module" defer src="./scripts/viewerApp.ts"></script>
 </head>
 
@@ -32,6 +32,23 @@
 
     </main>
   </div>
+  <!-- The way back to the operator's end, and the only chrome this page has.
+       Outside #stage on purpose: the stage is the scroller and the thing a
+       theme lays out, and this must survive both. Hidden until viewer.ts knows
+       it has a room and is not the control page's preview iframe — a preview
+       has no end of its own to switch from. The icon is inline rather than a
+       wa-icon because this page registers no icon component, and the pill has
+       to look the same on a display with no network to fetch a sprite from. -->
+  <a id="switchEnd" class="end-switch" href="/control" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path d="m8 3-4 4 4 4" />
+      <path d="M4 7h16" />
+      <path d="m16 21 4-4-4-4" />
+      <path d="M20 17H4" />
+    </svg>
+    <span>控制台</span>
+  </a>
 </body>
 
 </html>
