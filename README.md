@@ -1,5 +1,14 @@
 # teleprompter
 
+> **中文界面版本。** 基于 [17xande-dev/teleprompter](https://github.com/17xande-dev/teleprompter)（MIT）。
+>
+> 与上游的差异：
+>
+> - 界面文案全部改为简体中文（控制页、显示器页、命令面板、对话框、快捷键文档）。
+> - 编辑器库 [wordgard](https://code.haverbeke.berlin/wordgard/wordgard) 已 fork 至 `vendor/wordgard/`，界面词组直接写在库源码里。上游明确不接受 PR，故本仓库独立维护。
+>
+> 上游 README 原文保留如下。
+
 An open source teleprompter running in your browser. What a time to be alive.
 
 A **control** page holds the script and the controls; one or more **viewer**
@@ -64,4 +73,12 @@ it is the long list of constraints that produce no error when you break them.
 
 ## Licence
 
-[MIT](LICENSE).
+本仓库含两份 MIT 许可的代码，各自的版权声明均已保留：
+
+| 范围             | 许可                  | 版权                                    |
+| ---------------- | --------------------- | --------------------------------------- |
+| 本仓库           | [MIT](LICENSE)        | Copyright (c) 2024 Alexandre            |
+| `vendor/wordgard/` | [MIT](vendor/wordgard/LICENSE) | Copyright (C) 2026 Marijn Haverbeke |
+
+`vendor/wordgard/` 是 wordgard 0.5.2 的副本，改动清单与重新 vendoring 的步骤见 [vendor/wordgard/README.md](vendor/wordgard/README.md)。
+
