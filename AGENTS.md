@@ -270,6 +270,25 @@ WebSocket relay, `ice.go` STUN/TURN config.
   `data-signaling` attribute `onSignalingStatus` sets on `<html>`. Sidebar
   sections are `wa-card`s; paired buttons are `wa-button-group`s.
 
+### The editor library is vendored, not installed
+
+`vendor/wordgard` is the Wordgard 0.5.2 source tree, mapped onto `wordgard/*`
+in `deno.jsonc`. It is a fork, not a copy: the interface phrases in
+`vendor/wordgard/src/phrases/phrases.ts` are Chinese, and two type-level fixes
+are needed for Deno's checker. `vendor/wordgard/README.md` lists the complete
+diff from upstream and what re-vendoring involves.
+
+Two consequences for work in `src/frontend/`:
+
+- **Text the editor draws itself lives in the vendor tree.** Toolbar tooltips,
+  the block-style dropdown, colour names, the image and table dialogs — all of
+  them are phrase sets there. `editor.ts` no longer installs a translation
+  extension; translating at the call site would leave two places to look.
+- **It needs `noImplicitOverride: false` and no `deno.window` lib** — see the
+  comments in `deno.jsonc`. That second one reaches into this repo too: `crypto`
+  is the DOM's, so `RandomSource.getRandomValues` in `ids.ts` takes
+  `Uint8Array<ArrayBuffer>` rather than a narrower `Uint8Array`.
+
 ### Things that will bite
 
 - **`wa-qr-code` paints its modules in the host's `color`** — its own `fill`

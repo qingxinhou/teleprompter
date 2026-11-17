@@ -23,7 +23,11 @@
  */
 export interface RandomSource {
   randomUUID?: () => string;
-  getRandomValues<T extends Uint8Array>(array: T): T;
+  // Not generic: the DOM's `crypto.getRandomValues` is generic over
+  // `ArrayBufferView`, and a narrower type parameter here would make the real
+  // `crypto` unassignable to this interface. Only bytes are ever requested, so
+  // the plain signature is enough.
+  getRandomValues(array: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer>;
 }
 
 /**

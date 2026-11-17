@@ -13,18 +13,27 @@
     // longer matches what tools/gen-docs.ts produces, and docs_test.ts fails
     // on a file that was freshly generated. The generator pads its own
     // columns, so nothing is lost by leaving it alone.
-    "exclude": ["**/*.html", "**/*.svg", "docs/shortcuts.md"]
+    "exclude": ["**/*.html", "**/*.svg", "docs/shortcuts.md", "vendor"]
   },
   "compilerOptions": {
+    // deno.window (and deno.unstable) are left out deliberately: with them in
+    // scope, `setTimeout` is typed as Deno's `Timeout` object, and the
+    // vendored editor (vendor/wordgard) stores timer handles in `number`
+    // fields — every assignment then fails to type-check. Nothing here uses a
+    // window-only Deno global, so the DOM's own `setTimeout` is the right one.
     "lib": [
       "dom",
       "dom.asynciterable",
       "dom.iterable",
       "esnext",
-      "deno.window",
-      "deno.unstable",
       "deno.ns"
     ],
+    // vendor/wordgard overrides base-class accessors without repeating
+    // `override`; upstream is built by swc and never type-checked, so the
+    // modifier is simply absent there. Turning the flag off is cheaper and
+    // less invasive than adding it to ~30 members we would then have to
+    // re-add on every re-vendor.
+    "noImplicitOverride": false,
     "types": [
       "npm:@types/webscreens-window-placement",
       "./src/frontend/scripts/globals.d.ts"
@@ -116,11 +125,27 @@
     // graph only, for the same reason as CodeMirror above — and it is eval
     // free, which the page's script-src requires.
     "tinykeys": "npm:tinykeys@^3.1.0",
-    // Pinned to a minor range rather than @latest since sectionSizeMenu.ts
-    // started depending on Wordgard's *schema* API (Mark.Type.define and the
-    // Shape.Attribute spec) and not just its editor API. A lock refresh moving
-    // that spec under us would break the mark, and a document saved with sized
-    // sections is not readable by a build whose schema lacks the mark.
-    "wordgard": "npm:wordgard@^0.5.0"
+    // Wordgard is vendored rather than installed, as a fork: vendor/wordgard
+    // is the 0.5.2 source tree from code.haverbeke.berlin/wordgard/wordgard,
+    // with its interface phrases translated and two type-level fixes for
+    // Deno's checker (see vendor/wordgard/README.md). Three subpath mappings
+    // rather than a package name, because the source tree has one directory
+    // per module and no root index — and the vendored tree imports itself
+    // through these same specifiers.
+    "wordgard/command": "./vendor/wordgard/src/command/index.ts",
+    "wordgard/doc": "./vendor/wordgard/src/doc/index.ts",
+    "wordgard/editor": "./vendor/wordgard/src/editor/index.ts",
+    "wordgard/history": "./vendor/wordgard/src/history/index.ts",
+    "wordgard/phrases": "./vendor/wordgard/src/phrases/index.ts",
+    "wordgard/schema": "./vendor/wordgard/src/schema/index.ts",
+    "wordgard/state": "./vendor/wordgard/src/state/index.ts",
+    "wordgard/table": "./vendor/wordgard/src/table/index.ts",
+    "wordgard/types": "./vendor/wordgard/src/types/index.ts",
+    // The vendored tree's own dependencies. Pinned to the ranges 0.5.2
+    // declares; they are runtime-only helpers (DOM construction, CSS
+    // injection, grapheme clusters) with nothing to translate.
+    "@marijn/find-cluster-break": "npm:@marijn/find-cluster-break@^1.0.2",
+    "crelt": "npm:crelt@^1.0.6",
+    "style-mod": "npm:style-mod@^4.1.3"
   }
 }

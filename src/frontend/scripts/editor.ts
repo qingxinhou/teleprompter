@@ -21,7 +21,6 @@ import { brightenPastedHtml } from "./pasteColors.ts";
 import { sectionSizeMenu } from "./sectionSizeMenu.ts";
 import { tidyMenu } from "./tidyMenu.ts";
 import { type TextSizeAccess, textSizeMenu } from "./textSizeMenu.ts";
-import { wordgardZh } from "./wordgardZh.ts";
 
 // The editor pane's height, matching #pdfPane so the two modes occupy the same
 // box — and now literally the same declaration, since both read the token
@@ -175,11 +174,6 @@ function buildConfig(
     // Buttons only; the keybindings for these levels come from fullSchema().
     ...deepHeadingButtons,
     history(),
-    // The library's own interface text — bar tooltips, the block-style
-    // dropdown, colour names, the image and table dialogs. Before any of the
-    // menu extensions below, so the phrases are in state by the time a button
-    // asks for its description.
-    ...wordgardZh,
     menuBar({ template: menuTemplate() }),
     // The size control is the operator's own reading size, so it is only
     // offered when the page has a slider to drive — an editor built without

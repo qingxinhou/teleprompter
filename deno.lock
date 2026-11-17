@@ -20,13 +20,15 @@
     "npm:@codemirror/state@^6.7.4": "6.7.4",
     "npm:@codemirror/theme-one-dark@^6.1.3": "6.1.3",
     "npm:@codemirror/view@^6.43.11": "6.43.11",
+    "npm:@marijn/find-cluster-break@^1.0.2": "1.0.4",
     "npm:@types/webscreens-window-placement@*": "0.1.3",
     "npm:@types/webscreens-window-placement@~0.1.3": "0.1.3",
     "npm:codemirror@^6.0.2": "6.0.2",
+    "npm:crelt@^1.0.6": "1.0.7",
     "npm:pdfjs-dist@*": "6.3.289",
     "npm:pdfjs-dist@^6.3.289": "6.3.289",
-    "npm:tinykeys@^3.1.0": "3.1.0",
-    "npm:wordgard@0.5": "0.5.2"
+    "npm:style-mod@^4.1.3": "4.1.3",
+    "npm:tinykeys@^3.1.0": "3.1.0"
   },
   "jsr": {
     "@std/assert@1.0.19": {
@@ -489,14 +491,6 @@
     },
     "web-streams-polyfill@3.3.3": {
       "integrity": "sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw=="
-    },
-    "wordgard@0.5.2": {
-      "integrity": "sha512-GaP/WbtSYi6+FM0dp9qVRE4W+5tOnz5UOrM/olqIuoEdU4csNc9XqMhKEHFKtXk5heN95UheNM+0HNxpGkLQIg==",
-      "dependencies": [
-        "@marijn/find-cluster-break",
-        "crelt",
-        "style-mod"
-      ]
     }
   },
   "workspace": {
@@ -507,12 +501,14 @@
       "npm:@codemirror/state@^6.7.4",
       "npm:@codemirror/theme-one-dark@^6.1.3",
       "npm:@codemirror/view@^6.43.11",
+      "npm:@marijn/find-cluster-break@^1.0.2",
       "npm:@types/webscreens-window-placement@*",
       "npm:@types/webscreens-window-placement@~0.1.3",
       "npm:codemirror@^6.0.2",
+      "npm:crelt@^1.0.6",
       "npm:pdfjs-dist@^6.3.289",
-      "npm:tinykeys@^3.1.0",
-      "npm:wordgard@0.5"
+      "npm:style-mod@^4.1.3",
+      "npm:tinykeys@^3.1.0"
     ]
   }
 }

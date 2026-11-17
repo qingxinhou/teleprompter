@@ -5,6 +5,9 @@ COPY deno.jsonc deno.lock ./
 COPY bundle.ts ./
 COPY tools/ ./tools/
 COPY src/frontend/ ./src/frontend/
+# The editor library is vendored (see vendor/wordgard/README.md) and imported
+# by path, so it has to be in the image before the bundle step runs.
+COPY vendor/ ./vendor/
 # Populate the module cache from the lockfile before running the task, so a
 # bad or missing lockfile entry fails the build loudly instead of silently
 # refetching.
