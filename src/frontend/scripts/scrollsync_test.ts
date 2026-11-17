@@ -10,6 +10,10 @@ import {
   fractionIntoBlock,
   makeScrollSync,
   pendingScroll,
+  rampSpeed,
+  RAMP_IN_SECONDS,
+  RAMP_OUT_SECONDS,
+  RAMP_SETTLE,
   ratioOf,
   scrollQuantum,
   type ScrollSync,
@@ -616,4 +620,60 @@ Deno.test("an anchor is clamped to its own block, both ways", () => {
   assertEquals(scrollTopIntoBlock(500, 100, NaN), 500);
   assertEquals(scrollTopIntoBlock(500, 0, 0.5), 500);
   assertEquals(scrollTopIntoBlock(NaN, 100, 0.5), 0);
+});
+
+Deno.test("a speed change is ramped, not stepped", () => {
+  // One 16ms frame from rest toward 100px/s. It has moved, but nowhere near
+  // the 100 it was asked for — which is the whole point: the old code applied
+  // the commanded speed on the very next frame and the script lurched.
+  const first = rampSpeed(0, 100, 16);
+  assert(first > 0);
+  assert(first < 20);
+
+  // A quarter of a second is where the ramp-in constant has all but arrived.
+  let speed = 0;
+  for (let t = 0; t < 256; t += 16) speed = rampSpeed(speed, 100, 16);
+  assert(speed > 95);
+  // And half a second is where the settle threshold takes it the rest of the
+  // way; an exponential alone would still be a fifth of a pixel short.
+  for (let t = 0; t < 256; t += 16) speed = rampSpeed(speed, 100, 16);
+  assertEquals(speed, 100);
+});
+
+Deno.test("stopping covers more ground per frame than starting", () => {
+  // The asymmetry, stated as a test: same 100 units of change, one frame, and
+  // the stop is the further along of the two. Easing in is what the reader
+  // feels; easing out is lag on a control being pressed to stop something.
+  assert(RAMP_OUT_SECONDS < RAMP_IN_SECONDS);
+  const movedStarting = rampSpeed(0, 100, 16);
+  const movedStopping = 100 - rampSpeed(100, 0, 16);
+  assert(movedStopping > movedStarting);
+});
+
+Deno.test("reversing eases through zero rather than jogging backwards", () => {
+  // Forward 100 to reverse 100 is 200 units through zero. One frame must not
+  // cross it: the sign test is what makes that frame part of slowing down.
+  const next = rampSpeed(100, -100, 16);
+  assert(next > 0);
+  assert(next < 100);
+});
+
+Deno.test("a ramp settles exactly on its target", () => {
+  // An exponential never arrives. The settle threshold is what lets
+  // pendingScroll see a true zero, and `speed === 0` is what stops the pacer
+  // rather than letting it creep at a fraction of a pixel forever.
+  assertEquals(rampSpeed(0.4, 0, 16), 0);
+  assertEquals(rampSpeed(-0.4, 0, 16), 0);
+  assertEquals(rampSpeed(100, 100, 16), 100);
+});
+
+Deno.test("a nonsensical speed settles instead of propagating", () => {
+  // This feeds a scroll offset. NaN there parks the viewport somewhere no
+  // later message can explain.
+  assertEquals(rampSpeed(NaN, 100, 16), 0);
+  assertEquals(rampSpeed(100, NaN, 16), 0);
+  assertEquals(rampSpeed(Infinity, 100, 16), 0);
+  // No time has passed, so nothing has changed.
+  assertEquals(rampSpeed(100, -100, 0), 100);
+  assert(Math.abs(RAMP_SETTLE - 0.5) < 1e-9);
 });

@@ -29,7 +29,7 @@ zero, which is how the built-in layouts turn it red.
 
 ## The palette
 
-Nine custom properties, declared on `:root` in `viewerBase.css`. The first two
+Fifteen custom properties, declared on `:root` in `viewerBase.css`. The first two
 are applied _there_, on the layer underneath every theme — so a theme that
 overrides only those two recolours the screen without restating a layout, which
 is the only reason a token is worth having:
@@ -45,6 +45,31 @@ is the only reason a token is worth having:
 | `--message-color`        | the message overlay        |
 | `--viewer-gutter`        | the script's side margin   |
 | `--viewer-block-gap`     | space between paragraphs   |
+| `--viewer-measure`       | how wide a line gets       |
+| `--viewer-fade-height`   | how much of the bottom fades |
+| `--viewer-guide`         | `0` or `1`, the read-along line |
+| `--viewer-guide-position`| where that line sits, from the top |
+| `--viewer-guide-color`   | its colour                 |
+| `--viewer-frozen-color`  | the border on a display whose link has dropped |
+
+Four of these are new and worth a sentence each.
+
+`--viewer-measure` caps the width of a line at 30em by default — about thirty
+Chinese characters or sixty Latin ones, centred on the screen. A wider display
+gets more margin rather than longer lines. `none` removes the cap, which is what
+a wide layout might want for a two-column script.
+
+`--viewer-fade-height` is how far up the screen the bottom fades into
+`--viewer-bg`. `0` turns it off.
+
+`--viewer-guide` is off by default. Set it to `1` and a line is drawn across the
+screen at `--viewer-guide-position` (32% down, where the eye sits when reading
+aloud). It helps on a large display watched from a distance and is a stripe in
+the way on a laptop screen, which is why it is a token rather than a setting.
+
+`--viewer-frozen-color` is the border a display shows when its link has dropped.
+`transparent` turns it off. It carries no text on purpose — the person who can
+act on it is not the person looking at that screen.
 
 The five accents are read by the built-in layouts and by the template a new
 theme starts from, so they follow a theme that keeps those rules and are taken

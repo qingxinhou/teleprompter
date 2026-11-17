@@ -130,6 +130,73 @@ export function pendingScroll(
 }
 
 /**
+ * Time constants for the speed ramp, in seconds.
+ *
+ * The pacer used to apply the commanded speed on the very next frame, so a
+ * press of Space started the script at full speed and stopping it was equally
+ * abrupt. At the speeds a prompter actually runs at that reads as a lurch: the
+ * talent is mid-sentence, the line they were on leaves the read zone before
+ * their eye has caught up, and they have to find it again.
+ *
+ * Asymmetric on purpose. Easing *in* is what the reader feels as the script
+ * starting to move, so it gets the longer constant; easing *out* is a control
+ * the operator is pressing in order to stop something, and a quarter second of
+ * coasting after a stop is lag rather than grace. These are exponential time
+ * constants, not durations: 0.08s reaches ~95% of a change in a quarter of a
+ * second, and 0.04s in about a tenth.
+ */
+export const RAMP_IN_SECONDS = 0.08;
+export const RAMP_OUT_SECONDS = 0.04;
+
+/**
+ * How close is close enough to call the ramp finished, in px/s.
+ *
+ * An exponential never arrives, and the difference between "still easing" and
+ * "arrived" has to be a stated number. Half a pixel per second is 0.008px in a
+ * 60Hz frame — under the quantum a viewport can express, so the snap is
+ * invisible, and it lets `pendingScroll` see a true zero and stop the pacer
+ * rather than creeping forever at a fraction of a pixel.
+ */
+export const RAMP_SETTLE = 0.5;
+
+/**
+ * The speed to apply this frame, having moved `applied` toward `target`.
+ *
+ * A speed, not a position: the ramp belongs to the pacer, which integrates it,
+ * so what a viewer does with the result is unchanged. Deciding whether this
+ * frame is part of speeding up or slowing down is what the sign comparison is
+ * for — a reversal (forward 100 to reverse 100) passes through zero and must
+ * not be treated as acceleration all the way across, or the script would jog
+ * backwards at full speed the instant the direction flipped.
+ *
+ * A non-finite input settles at rest rather than propagating: this feeds
+ * straight into a scroll offset, and NaN there parks the viewport somewhere
+ * that no later message can explain.
+ */
+export function rampSpeed(
+  applied: number,
+  target: number,
+  elapsedMs: number,
+  tauIn = RAMP_IN_SECONDS,
+  tauOut = RAMP_OUT_SECONDS,
+): number {
+  if (!Number.isFinite(applied) || !Number.isFinite(target)) return 0;
+  if (applied === target) return target;
+  if (!(elapsedMs > 0)) return applied;
+  // Accelerating from rest counts as speeding up, which the sign test alone
+  // would call slowing down: sign(0) is 0, and 0 is not sign(target).
+  const decelerating = applied !== 0 && (
+    target === 0 ||
+    Math.sign(target) !== Math.sign(applied) ||
+    Math.abs(target) < Math.abs(applied)
+  );
+  const tau = decelerating ? tauOut : tauIn;
+  const k = 1 - Math.exp(-elapsedMs / 1000 / tau);
+  const next = applied + (target - applied) * k;
+  return Math.abs(target - next) < RAMP_SETTLE ? target : next;
+}
+
+/**
  * How much of an unspent scrub gesture to spend this frame.
  *
  * A wheel notch over the preview arrives as one large `deltaY`, and forwarding

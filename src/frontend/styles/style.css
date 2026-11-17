@@ -418,6 +418,31 @@ body {
   color: var(--wa-color-text-normal);
 }
 
+/* The readout and the unit it is in, stacked rather than set side by side.
+   Beside the number, "行/分" pushes the column wider than the step row under
+   it, and the two columns of the transport card stop lining up. */
+.readout-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.0625rem;
+}
+
+.readout-unit {
+  font-size: 0.6875rem;
+  line-height: 1;
+  color: var(--wa-color-text-quiet, #8a8a8a);
+}
+
+/* The line under both sliders: how much script is left at this speed. */
+.transport-note {
+  margin-block-start: var(--wa-space-xs, 0.5rem);
+  font-size: var(--wa-font-size-xs, 0.75rem);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--wa-color-text-quiet, #8a8a8a);
+}
+
 /* The step row. Sized for a thumb rather than for the pointer-and-hover this
    panel was first built against: 44 by 40 is the smallest pair of numbers that
    still reads as one target rather than as a decoration, and the two sit either

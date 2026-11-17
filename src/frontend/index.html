@@ -189,14 +189,32 @@
                sixty"), and neither value was legible anywhere before. Both
                are written by #renderTransport, which reads the sliders. -->
           <div class="slider-column">
-            <output id="outSpeed" class="transport-readout" for="rngSpeed">0</output>
+            <!-- Lines per minute rather than the pixel-per-second the wire
+                 carries. A pixel is not a unit anyone reading a script thinks
+                 in, and worse, it is not a constant one: the same number moves
+                 the text faster or slower as Text Scale changes the line
+                 height, so a speed dialled in on one setup no longer means the
+                 same thing on the next. See #renderTransport. -->
+            <div class="readout-stack">
+              <output id="outSpeed" class="transport-readout" for="rngSpeed">0</output>
+              <span class="readout-unit">行/分</span>
+            </div>
             <!-- A step either side of the number, because a vertical track is
                  the worst shape for the device this panel is usually used on:
-                 200px of glass for a thousand speed units means a thumb that
-                 lands one pixel out lands five units out. Left is slower, right
-                 is faster, which is what the number between them does — the
-                 track runs Reverse to Forward, so up and down would disagree
-                 with it. See #wireTransportStepper for the repeat. -->
+                 200px of glass for two hundred speed units means a thumb that
+                 lands one pixel out still lands one unit out. Left is slower,
+                 right is faster, which is what the number between them does —
+                 the track runs Reverse to Forward, so up and down would
+                 disagree with it. See #wireTransportStepper for the repeat.
+
+                 The range is ±100px/s, down from ±500, because ±500 was almost
+                 entirely unreachable territory: a Chinese script at 3rem takes
+                 ~240 characters a minute, which is 30-odd characters a line
+                 and therefore about six pixels a second. The useful half of
+                 the old track was the bottom few percent of it, and the thumb
+                 could not be placed there — one pixel of travel was five units
+                 of speed. Everything above 100px/s scrolls faster than anyone
+                 reads. -->
             <div class="step-row">
               <button type="button" id="btnSpeedDown" class="step-btn" title="更慢" aria-label="变慢">
                 <wa-icon name="minus"></wa-icon>
@@ -205,7 +223,7 @@
                 <wa-icon name="plus"></wa-icon>
               </button>
             </div>
-            <wa-slider id="rngSpeed" label="滚动速度" min="-500" max="500" step="0.1" value="0"
+            <wa-slider id="rngSpeed" label="滚动速度" min="-100" max="100" step="0.1" value="0"
               orientation="vertical" indicator-offset="0" with-tooltip title="右键重置">
               <span slot="reference">倒回</span>
               <span slot="reference">停止</span>
@@ -235,6 +253,10 @@
             </wa-slider>
           </div>
         </div>
+        <!-- How much script is left at the speed being run, next to a countdown
+             the operator is already watching. Blank when stopped — a number
+             that changes as the speed does is noise until there is a speed. -->
+        <div class="transport-note" id="divSpeedNote" hidden></div>
       </wa-card>
       <wa-card appearance="outlined" with-header>
         <span slot="header" class="card-title">
@@ -445,6 +467,12 @@
     <wa-switch id="swBrightenPaste" checked
       hint="把粘贴进来的黑字转成屏幕上的白字，红绿等颜色保持不变。关闭则完全按复制时的颜色粘贴。">
       粘贴文字自动提亮
+    </wa-switch>
+    <!-- The beam-splitter rig. A switch rather than a per-display control
+         because the whole room is behind the same glass. -->
+    <wa-switch id="swMirror"
+      hint="显示器左右翻转，用于分光镜提词器（玻璃反射出来的是镜像）。时钟和倒计时一起翻转。">
+      镜像显示（分光镜提词器）
     </wa-switch>
     <wa-button name="close" slot="footer" variant="primary">完成</wa-button>
   </wa-dialog>

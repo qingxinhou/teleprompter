@@ -25,6 +25,7 @@ export class SettingsControls {
   #swRollTarget: WaSwitch;
   #swSmoothScrub: WaSwitch;
   #swBrightenPaste: WaSwitch;
+  #swMirror: WaSwitch;
 
   constructor() {
     this.#dialog = document.querySelector("#dlgSettings")!;
@@ -33,6 +34,7 @@ export class SettingsControls {
     this.#swRollTarget = document.querySelector("#swRollTarget")!;
     this.#swSmoothScrub = document.querySelector("#swSmoothScrub")!;
     this.#swBrightenPaste = document.querySelector("#swBrightenPaste")!;
+    this.#swMirror = document.querySelector("#swMirror")!;
     (<WaButton> document.querySelector("#btnSettings")).addEventListener(
       "click",
       () => this.open(),
@@ -68,6 +70,18 @@ export class SettingsControls {
         new CustomEvent("preview-scrub", { bubbles: true, composed: true }),
       );
     });
+
+    // Also reported, because it has to reach the displays the moment it is
+    // flipped — it is the one switch here whose effect is invisible on the
+    // page that owns it, and an operator looking at a monitor through glass
+    // needs to see the flip happen rather than discover it at the next slider
+    // move. The page re-broadcasts it through the settings message.
+    this.#swMirror.addEventListener("change", () => {
+      this.storage.mirror = this.#swMirror.checked;
+      this.#swMirror.dispatchEvent(
+        new CustomEvent("mirror", { bubbles: true, composed: true }),
+      );
+    });
   }
 
   /** Also the palette's "Settings" command. */
@@ -80,6 +94,7 @@ export class SettingsControls {
     this.#swRollTarget.checked = this.storage.rollTargetToTomorrow;
     this.#swSmoothScrub.checked = this.storage.smoothScrub;
     this.#swBrightenPaste.checked = this.storage.brightenPastedText;
+    this.#swMirror.checked = this.storage.mirror;
     this.#dialog.open = true;
   }
 
@@ -128,6 +143,11 @@ export class SettingsControls {
   /** Asked at the moment of a paste, never cached — same reason. */
   get brightenPastedText(): boolean {
     return this.storage.brightenPastedText;
+  }
+
+  /** Whether the displays are flipped for a beam-splitter rig. */
+  get mirror(): boolean {
+    return this.storage.mirror;
   }
 
   /**

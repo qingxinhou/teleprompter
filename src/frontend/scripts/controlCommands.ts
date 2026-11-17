@@ -75,8 +75,14 @@ export interface CommandHost {
 }
 
 /** How far one nudge moves each slider. */
-const SPEED_STEP = 10;
-const SPEED_STEP_LARGE = 50;
+/* Speed steps in the same units the slider counts, which are pixels per second.
+ * They came down with the slider's range (see index.html): ten units used to be
+ * 2% of a ±500 track and is 10% of a ±100 one, which is far too coarse for a
+ * control that is trimmed by ear while somebody is reading. One unit is about
+ * 1.25 lines a minute at the default size — a nudge you can hear — and five is
+ * the step for covering ground. */
+const SPEED_STEP = 1;
+const SPEED_STEP_LARGE = 5;
 const SCALE_STEP = 5;
 // Tenths of a rem, so two is 0.2rem — a smaller step than the viewers' because
 // the operator is looking straight at the result and nudges it to taste.

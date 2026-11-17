@@ -5,6 +5,7 @@ import {
   fractionIntoBlock,
   makeScrollSync,
   pendingScroll,
+  rampSpeed,
   ratioOf,
   type ScrollSync,
   scrollTopIntoBlock,
@@ -52,7 +53,19 @@ export class Viewer {
   messageMin = 10;
   messageMax = 75;
   scroll = false;
+  /** The speed the controller has commanded. Not what the pacer applies — see
+   *  `appliedSpeed`, which lags it by the ramp. */
   scrollSpeed = 0;
+  /**
+   * The speed the pacer is actually integrating this frame.
+   *
+   * Separate from `scrollSpeed` so a press of Space eases the script into
+   * motion and out of it again rather than snapping between the two. It is
+   * also what the end-of-document guard reads: the question there is whether
+   * this display is currently moving forwards, which is a property of the
+   * applied speed, not of what it was last asked for.
+   */
+  appliedSpeed = 0;
   lastScrollTime = 0;
   accumulatedScroll = 0;
   isPreviewer = false;
@@ -460,6 +473,7 @@ export class Viewer {
         }
         if (msg.textScale !== undefined) this.setTextScale(msg.textScale);
         if (msg.message !== undefined) this.setMessage(msg.message);
+        if (msg.mirror !== undefined) this.setMirror(msg.mirror);
         break;
       case "stage":
         this.setStage(msg.width, msg.height);
@@ -763,6 +777,17 @@ export class Viewer {
     const timeElapsed = timestamp - this.lastScrollTime;
     this.lastScrollTime = timestamp;
 
+    // Ramp the applied speed toward the commanded one. Advanced every frame,
+    // including the frames that return early below, so a pause requested while
+    // parked at the end of the script still comes to rest instead of holding
+    // the ramp open — see rampSpeed for the time constants and why the two
+    // directions differ.
+    this.appliedSpeed = rampSpeed(
+      this.appliedSpeed,
+      this.scrollSpeed,
+      timeElapsed,
+    );
+
     // Measured on the scroller itself, which is also a fix: this used to
     // compare `innerHeight + scrollY` against `document.body.offsetHeight`
     // while the scrollable range came from `scrollHeight`, so a display parked
@@ -771,14 +796,14 @@ export class Viewer {
     // was permanently true. Both quantities now come from the same element.
     const stage = this.#stage;
     const atEnd = stage.scrollTop + stage.clientHeight >= stage.scrollHeight;
-    if (this.scrollSpeed > 0 && atEnd) {
+    if (this.appliedSpeed > 0 && atEnd) {
       // if we're at the bottom of the page, don't continue scrolling.
       requestAnimationFrame(this.smoothScroll.bind(this));
       return;
     }
 
     this.accumulatedScroll = pendingScroll(
-      this.scrollSpeed,
+      this.appliedSpeed,
       timeElapsed,
       this.accumulatedScroll,
     );
@@ -887,6 +912,27 @@ export class Viewer {
     );
     if (!Number.isFinite(scale) || scale <= 0) return;
     this.root.style.setProperty("--stage-scale", `${scale}`);
+  }
+
+  /**
+   * Flip this display left to right, for a beam-splitter rig.
+   *
+   * Set on the document element rather than on #stage, because the whole
+   * display has to turn: the clock strip, the countdown and the message
+   * overlay are all read through the same glass, and one of them arriving
+   * unmirrored would be the thing the talent notices. #stage already carries a
+   * transform of its own (the reference-size scale, and its own centring
+   * translate), and composing a flip into it would move the box as well as
+   * mirror its contents — see the note in viewerBase.css.
+   *
+   * Nothing about the scroll path changes: a horizontal flip leaves the
+   * vertical axis alone, so `scrollTop` still means what it meant, positions
+   * still travel as ratios, and the pacer still integrates in the same
+   * direction. That is the reason only the horizontal axis is offered.
+   */
+  setMirror(on: boolean) {
+    document.documentElement.dataset.mirror = on ? "x" : "";
+    if (!on) delete document.documentElement.dataset.mirror;
   }
 
   setTextScale(scale: number) {

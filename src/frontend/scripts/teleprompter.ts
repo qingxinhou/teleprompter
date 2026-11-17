@@ -4,7 +4,7 @@ import {
   TPClockControl,
 } from "./clock.ts";
 import { randomID, roomCode } from "./ids.ts";
-import { parseTimer, serialiseTimer } from "./timer.ts";
+import { parseTimer, formatDuration, serialiseTimer } from "./timer.ts";
 
 import WaSplitPanel from "@awesome.me/webawesome/dist/components/split-panel/split-panel.js";
 import WaBadge from "@awesome.me/webawesome/dist/components/badge/badge.js";
@@ -275,6 +275,8 @@ export class Teleprompter {
   #spnViewerNum: HTMLElement;
   #outSpeed: HTMLOutputElement;
   #outScale: HTMLOutputElement;
+  /** The line under both sliders: how much script the current speed leaves. */
+  #divSpeedNote: HTMLDivElement;
   // Where each slider goes back to on a right-click. Read out of the markup
   // once, in the constructor, so the HTML stays the single source of the
   // defaults — and captured *before* the stored editor size is applied, or
@@ -332,6 +334,9 @@ export class Teleprompter {
     this.#spnViewerNum = <HTMLElement> document.querySelector("#spnViewerNum");
     this.#outSpeed = <HTMLOutputElement> document.querySelector("#outSpeed");
     this.#outScale = <HTMLOutputElement> document.querySelector("#outScale");
+    this.#divSpeedNote = <HTMLDivElement> document.querySelector(
+      "#divSpeedNote",
+    );
 
     for (const slider of [this.rngSpeed, this.rngScale]) {
       this.#sliderDefaults.set(slider, slider.value);
@@ -479,6 +484,14 @@ export class Teleprompter {
       "preview-scrub",
       () => this.togglePreviewScrub(),
     );
+    // The flip is the one display setting with no visible effect on this page,
+    // so it has to go out on the change rather than wait for the next slider
+    // move to carry it. #pushSettings reaches the preview and the displays by
+    // the same funnel every other setting uses.
+    document.querySelector("#swMirror")!.addEventListener(
+      "change",
+      () => this.#pushSettings({ mirror: this.settings.mirror }),
+    );
     this.#answerLocalProbes();
     // The Send button is the message form's submitter, so a click, an Enter
     // in the field and the palette's command (which clicks the button) all
@@ -603,6 +616,9 @@ export class Teleprompter {
           data: this.#pdfBytes,
         });
       }
+      // The speed readout is in lines per minute, and the line height comes
+      // from this document — which had none until now.
+      this.#renderTransport();
     });
 
     // The preview fits the box it is given, so it has to be refitted whenever
@@ -633,6 +649,18 @@ export class Teleprompter {
     this.#renderLive();
     this.#renderPreviewScrub();
     this.#restoreClock();
+
+    // The remaining-time line follows the *position* as well as the speed, and
+    // a display moving forward fires nothing on this page — the pacer lives on
+    // the viewer. A slow poll is the cheap answer: the number is read at a
+    // glance, and two seconds of lag is invisible against a value that counts
+    // in seconds anyway.
+    //
+    // It re-renders the whole transport readout rather than just the note,
+    // because the first render happens before the preview iframe has a document
+    // — the line height is read from the preview, so until it loads there is
+    // nothing to divide by and the speed reads as an em dash.
+    setInterval(() => this.#renderTransport(), 2000);
   }
 
   /**
@@ -1153,6 +1181,7 @@ export class Teleprompter {
       html: this.#publishedHtml,
       clock: this.tpClockControl.state(),
       ratio: this.#lastRatio,
+      mirror: this.settings.mirror,
     });
   }
 
@@ -1546,15 +1575,90 @@ export class Teleprompter {
   /**
    * The numeric readouts above the two sliders.
    *
-   * Speed is shown as the number that goes on the wire — `-rngSpeed.value`,
-   * where positive is forward — and not as the slider's own value, whose sign
-   * is inverted for the geometric reason documented on `listenSpeedWheel`.
-   * Showing the raw slider value would put a minus sign in front of forward.
+   * Speed is shown in **lines per minute**, not in the pixels per second the
+   * wire carries. Two reasons, and the second is the one that matters.
+   *
+   * A pixel rate is not something anyone reading a script can picture — "sixty"
+   * says nothing about whether the talent is keeping up. And it is not a
+   * constant unit either: the line height is set by Text Scale, so the same
+   * number moves the text faster on a display set to 3rem than on one set to
+   * 5rem. A speed dialled in at one venue therefore stops meaning the same
+   * thing at the next, and the operator has to find it again by eye every time.
+   *
+   * Lines per minute is the same physical quantity on either side of that
+   * change, which is what makes it worth showing. It is still the pixel rate
+   * that travels, so nothing on a display has to change and a display that is
+   * already running keeps working.
+   *
+   * The forward sign comes from `-rngSpeed.value` rather than the slider's own
+   * value, whose sign is inverted for the geometric reason documented on
+   * `listenSpeedWheel`. Showing the raw slider value would put a minus sign in
+   * front of forward.
    */
   #renderTransport() {
     const speed = -this.rngSpeed.value;
-    this.#outSpeed.textContent = `${Math.round(speed)}`;
+    const linePx = this.#previewLinePx();
+    // No preview yet means no line height to divide by. An em dash rather than
+    // the raw pixel count: that number under a "行/分" label would be wrong by
+    // whatever the line height is, and wrong silently.
+    this.#outSpeed.textContent = linePx > 0
+      ? `${Math.round((speed / linePx) * 60)}`
+      : "—";
     this.#outScale.textContent = (this.rngScale.value / 10).toFixed(1);
+    this.#renderSpeedNote(speed);
+  }
+
+  /**
+   * The line height of the script on a display, in the reference display's
+   * pixels — or 0 before the preview has laid out.
+   *
+   * Read from the preview rather than derived from Text Scale, because a theme
+   * may set its own `line-height` and the conversion has to follow whatever the
+   * displays are actually doing. The preview *is* the reference box, so its
+   * geometry is every display's geometry — the same argument
+   * `#previewBlockMetrics` makes for block positions.
+   */
+  #previewLinePx(): number {
+    const doc = this.ifrmPreview.contentDocument;
+    const main = doc?.querySelector("#main");
+    const win = doc?.defaultView;
+    if (!main || !win) return 0;
+    const cs = win.getComputedStyle(main);
+    const line = parseFloat(cs.lineHeight);
+    if (Number.isFinite(line) && line > 0) return line;
+    // `line-height: normal` computes to the string "normal". 1.2 is close
+    // enough for a number that only has to be readable, and it is the ratio
+    // browsers use for most fonts.
+    const font = parseFloat(cs.fontSize);
+    return Number.isFinite(font) && font > 0 ? font * 1.2 : 0;
+  }
+
+  /**
+   * How much script is left at the speed being run.
+   *
+   * Measured in the preview's coordinates, which are every display's: the
+   * distance below the fold is `scrollHeight - clientHeight - scrollTop`, and
+   * it is the same number on every screen because they all lay out in the
+   * reference box.
+   *
+   * Only forward speeds get an answer. Reverse runs off the top of the script
+   * and there is no "remaining" in that direction; zero is not a speed at all.
+   * Both cases hide the line rather than printing a zero, and so does an
+   * already-finished script.
+   */
+  #renderSpeedNote(speed: number) {
+    const note = this.#divSpeedNote;
+    const stage = this.#previewScroller();
+    const left = stage
+      ? stage.scrollHeight - stage.clientHeight - stage.scrollTop
+      : 0;
+    if (!stage || speed <= 0 || !(left > 0)) {
+      note.hidden = true;
+      note.textContent = "";
+      return;
+    }
+    note.hidden = false;
+    note.textContent = `按此速度还剩 ${formatDuration((left / speed) * 1000)}`;
   }
 
   #renderViewers() {

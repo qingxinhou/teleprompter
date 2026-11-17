@@ -32,6 +32,19 @@
 
     </main>
   </div>
+  <!-- The bottom of the read zone fades into the background, so the lines the
+       talent is not yet on stop competing with the one they are. Outside
+       #stage and fixed, because inside it would scroll with the script — the
+       whole point is that it stays put while the words move under it.
+
+       Only the bottom. A fade at the top would cross the clock strip, and the
+       countdown is the one thing on screen that must stay legible while it is
+       being read. Height and colour are tokens a theme can restyle; see
+       viewerBase.css. -->
+  <div class="viewer-fade" aria-hidden="true"></div>
+  <!-- A line to read along, off by default. Set --viewer-guide to 1 in a theme
+       to show it — see viewerBase.css for why it is not simply always there. -->
+  <div class="viewer-guide" aria-hidden="true"></div>
   <!-- The way back to the operator's end, and the only chrome this page has.
        Outside #stage on purpose: the stage is the scroller and the thing a
        theme lays out, and this must survive both. Hidden until viewer.ts knows

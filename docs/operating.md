@@ -210,6 +210,28 @@ the text travels, and up is reverse. **Space** starts and stops the scroll
 without forgetting the speed, which is a different thing from setting the speed
 to zero — zero leaves the pacer running for a cue you are about to jump to.
 
+The number above the slider is **lines per minute**, not pixels. The slider's
+own units are pixels a second, which is what travels to the displays, but a
+pixel rate is not a unit anyone reads a script in — and worse, it is not a
+constant one: the same number moves the text faster or slower as Text Scale
+changes the line height. Lines per minute means the same thing at any size, so a
+speed worked out at one venue is still the right speed at the next.
+
+Under both sliders, one line says how much script is left at the speed being
+run. It disappears when the scroll is stopped or reversed, and it is a
+conversion of the *positions* rather than a second clock, so it is right
+whatever the operator does to the scroll.
+
+Starting and stopping are eased rather than instant, forward over about a
+quarter of a second and stopping in half that. The point is the person reading:
+a script that starts at full speed leaves the line they were on before their eye
+has moved, and they have to find it again.
+
+The track runs from −100 to 100 pixels a second. Everything above that scrolls
+faster than anyone reads: a Chinese script at the default size runs at about six
+pixels a second, so the whole usable range is the bottom of what used to be a
+±500 track.
+
 Both sliders in the Transport card have a **−** and a **+** under the number.
 One tap moves the number by one; holding repeats, and the repeat speeds up in
 two stages, so a long press crosses the range without a hundred taps. They exist
@@ -263,6 +285,34 @@ the set speed.
 It is off by default and marked in amber while armed, on the preview itself and
 in the app bar, because the preview sits under your pointer: armed, a wheel that
 drifts over it while you were reaching for a slider jogs every display.
+
+## What a display looks like
+
+A line of script stops at about thirty Chinese characters (sixty Latin ones) and
+centres itself in whatever screen it is on, rather than running the full width of
+a 1920 display. The limit is in `em`, so it is a count of characters and stays
+one as Text Scale moves. Lost lines are what a prompter fails at most often, and
+the distance the eye travels back to the start of the next line is what causes
+them — which makes this a bigger lever than the font size, and until now it was
+the one thing that could not be set.
+
+The bottom of the screen fades into the background, dimming the lines the talent
+is not on yet without hiding them. The clock strip is deliberately left out of
+the fade: the countdown has to stay legible while it is being read.
+
+Two more things are CSS tokens a theme can turn on — see [themes.md](themes.md):
+
+- `--viewer-guide: 1` draws a line across the screen to read along. Off by
+  default, because it helps on a big display read from a distance and is a
+  stripe in the way on a laptop.
+- `--viewer-measure` changes the line length; `none` uses the whole width, which
+  is what PDF mode does by default.
+
+A display whose link has dropped gets a thin red border. It has no text, so it
+says nothing to the talent — who cannot act on it — and everything to whoever is
+looking at the screen. Without it a frozen display and a working one look
+exactly alike: the script simply stops moving, which reads as the speaker
+hesitating.
 
 ## The preview
 
@@ -367,6 +417,12 @@ four icon buttons, the pane tabs and the status badge do not fit one row — and
   a smooth stream of small deltas, and easing those only adds lag — turn it off
   for raw scrolling there. A drag is never eased either way: it has to keep
   tracking your finger.
+- **Mirror the displays** — flips every display left to right, for a
+  beam-splitter prompter. The glass returns a mirror image, so the script would
+  otherwise run backwards; the clock strip and countdown flip with it, because
+  they are read through the same glass. Horizontal only: a vertical flip would
+  reverse the direction the script travels, which the scroll position cannot
+  survive.
 
 **Live editing** is remembered the same way but its switch is in the Sync card,
 where the other "what do the displays have" actions are.

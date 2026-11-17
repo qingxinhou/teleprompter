@@ -127,6 +127,24 @@ export type Settings = {
    * to a usable colour rather than silently applying nothing.
    */
   lastColourID: string;
+  /**
+   * Whether the displays are flipped left-to-right.
+   *
+   * For a beam-splitter prompter: the talent reads the script through glass at
+   * an angle to the screen, so what reaches their eye is mirrored. Without
+   * this the rig is unusable — the words run backwards — and there is no CSS a
+   * theme can supply for it, because the flip has to happen to the whole
+   * display including its clocks, not to the script alone.
+   *
+   * Remembered, and it is the one setting here that is really *scenery*: it
+   * changes when the hardware does, not when the operator's taste does. That
+   * is the argument for remembering it — the same rig comes back next week.
+   *
+   * Horizontal only. A vertical flip would reverse the direction the script
+   * travels, which would need every scroll position on the wire reinterpreted
+   * and would desync any display not running the same build.
+   */
+  mirror: boolean;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -137,6 +155,7 @@ export const DEFAULT_SETTINGS: Settings = {
   smoothScrub: true,
   brightenPastedText: true,
   lastColourID: "yellow",
+  mirror: false,
 };
 
 /**
@@ -268,6 +287,15 @@ export class SettingsStorage {
 
   set brightenPastedText(value: boolean) {
     this.#settings.brightenPastedText = value;
+    this.#save();
+  }
+
+  get mirror(): boolean {
+    return this.#settings.mirror;
+  }
+
+  set mirror(value: boolean) {
+    this.#settings.mirror = value;
     this.#save();
   }
 

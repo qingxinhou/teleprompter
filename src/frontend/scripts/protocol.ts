@@ -29,6 +29,10 @@ export type SettingsMessage = {
   autoScroll?: boolean;
   textScale?: number;
   message?: string;
+  // Flip the display left-to-right for a beam-splitter rig. Absent until an
+  // operator turns it on, which is what keeps an older display working: it
+  // ignores the key and shows the script unflipped.
+  mirror?: boolean;
 };
 
 // Which viewer layout to wear, and — for a user-authored one — its stylesheet.
@@ -274,6 +278,8 @@ export function catchUpMessages(show: {
   html: string;
   clock: Omit<ClockMessage, "type">;
   ratio: number;
+  /** Left-to-right flip for a beam-splitter rig. */
+  mirror: boolean;
 }): ControlMessage[] {
   return [
     // First of all, because it is the box everything else is measured in: a
@@ -286,6 +292,7 @@ export function catchUpMessages(show: {
       speed: show.speed,
       textScale: show.textScale,
       message: show.message,
+      mirror: show.mirror,
     },
     { type: "content", html: show.html },
     { type: "clock", ...show.clock },

@@ -13,6 +13,7 @@ function show(over: Partial<Parameters<typeof catchUpMessages>[0]> = {}) {
     html: "<p>Line one</p>",
     clock: { running: true, remainingMs: 90_000 },
     ratio: 0.42,
+    mirror: false,
     ...over,
   };
 }
@@ -57,10 +58,26 @@ Deno.test("the show's own values travel, not defaults", () => {
     speed: 120,
     textScale: 3.2,
     message: "two minutes",
+    mirror: false,
   });
   assertEquals(msgs[3], { type: "content", html: "<p>Line one</p>" });
   assertEquals(msgs[4], { type: "clock", running: true, remainingMs: 90_000 });
   assertEquals(msgs[5], { type: "scroll", r: 0.42, s: 0 });
+});
+
+Deno.test("the mirror flag reaches a display that joins mid-service", () => {
+  // A display swapped in behind glass during a service has to come up
+  // mirrored, or the talent is handed a screen of backwards words until
+  // somebody touches a slider. The flag travels with everything else for
+  // exactly that reason.
+  const [, , settings] = catchUpMessages(show({ mirror: true }));
+  assertEquals(settings, {
+    type: "settings",
+    speed: 120,
+    textScale: 3.2,
+    message: "two minutes",
+    mirror: true,
+  });
 });
 
 Deno.test("speed is carried as given, so the wire's sign convention is the caller's", () => {
@@ -73,6 +90,7 @@ Deno.test("speed is carried as given, so the wire's sign convention is the calle
     speed: -45,
     textScale: 3.2,
     message: "two minutes",
+    mirror: false,
   });
 });
 
@@ -93,6 +111,7 @@ Deno.test("an empty script and an empty message are sent, not skipped", () => {
     speed: 120,
     textScale: 3.2,
     message: "",
+    mirror: false,
   });
   assertEquals(msgs[3], { type: "content", html: "" });
 });
